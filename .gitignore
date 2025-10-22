@@ -1,0 +1,27 @@
+# === IntelliJ IDEA ===
+.idea/
+*.iml
+out/
+
+# === Maven / Gradle ===
+target/
+build/
+
+# === Logs y temporales ===
+*.log
+*.tmp
+*.bak
+*.swp
+
+# === Archivos del sistema ===
+.DS_Store
+Thumbs.db
+
+# === Configuración local ===
+application-local.properties
+.env
+
+# === Archivos específicos de tu entorno ===
+*.class
+*.jar
+

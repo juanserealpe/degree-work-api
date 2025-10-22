@@ -14,9 +14,6 @@ public class JwtResponseDTO {
         this.roles = roles;
     }
 
-    public JwtResponseDTO(String newJwt) {
-    }
-
     public String getToken() { return token; }
     public String getType() { return type; }
     public String getEmail() { return email; }

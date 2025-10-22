@@ -1,6 +1,6 @@
 package co.edu.unicauca.entities;
 
-import co.edu.unicauca.enums.ModalityENUM;
+import co.edu.unicauca.enums.Modality;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public class DegreeWork {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ModalityENUM modality;
+    private Modality modality;
     
     @OneToMany(mappedBy = "degreeWork")
     private List<Student> students;
@@ -31,8 +31,8 @@ public class DegreeWork {
     public long getIdDegreeWork() { return idDegreeWork; }
     public void setIdDegreeWork(long idDegreeWork) { this.idDegreeWork = idDegreeWork; }
 
-    public ModalityENUM getModality() { return modality; }
-    public void setModality(ModalityENUM modality) { this.modality = modality; }
+    public Modality getModality() { return modality; }
+    public void setModality(Modality modality) { this.modality = modality; }
 
     public List<Student> getStudents() { return students; }
     public void setStudents(List<Student> students) { this.students = students; }

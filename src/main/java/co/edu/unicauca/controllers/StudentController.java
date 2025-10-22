@@ -4,6 +4,7 @@ package co.edu.unicauca.controllers;
 import co.edu.unicauca.entities.Student;
 import co.edu.unicauca.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,13 +15,10 @@ public class StudentController {
     @Autowired
     private StudentRepository studentRepository;
 
-    @GetMapping
+
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('STUDENT')")
     public List<Student> getAllStudents(){
         return studentRepository.findAll();
-    }
-
-    @PostMapping
-    public Student createStudent(@RequestBody Student prmStudent){
-        return studentRepository.save(prmStudent);
     }
 }

@@ -3,7 +3,6 @@ package co.edu.unicauca.services;
 import co.edu.unicauca.entities.Account;
 import co.edu.unicauca.entities.User;
 import co.edu.unicauca.enums.Role;
-import co.edu.unicauca.repositories.AccountRepository;
 import co.edu.unicauca.repositories.UserRepository;
 import co.edu.unicauca.utilities.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

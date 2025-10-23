@@ -34,9 +34,6 @@ public class AuthService {
     @Autowired
     private AccountRepository _accountRepository;
 
-    /**
-     * Autentica un usuario y genera JWT + Refresh Token
-     */
     @Transactional
     public JwtResponseDTO authenticateUser(LoginRequestDTO loginRequest) {
         Logger.info(getClass(), "Attempting login for email: " + loginRequest.getEmail());
@@ -77,9 +74,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Refresca el access token usando un refresh token válido
-     */
     @Transactional
     public JwtResponseDTO refreshAccessToken(String requestRefreshToken) {
         Logger.info(getClass(), "Attempting to refresh access token");
@@ -114,9 +108,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Logout: revoca el refresh token del usuario
-     */
     @Transactional
     public void logout(String refreshToken) {
         Logger.info(getClass(), "Processing logout");
@@ -127,9 +118,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Logout de todos los dispositivos: revoca todos los tokens de la cuenta
-     */
     @Transactional
     public void logoutAllDevices(Long accountId) {
         Logger.info(getClass(), "Logging out all devices for account ID: " + accountId);

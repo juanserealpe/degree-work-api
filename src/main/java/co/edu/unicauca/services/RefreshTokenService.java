@@ -23,18 +23,11 @@ public class RefreshTokenService {
     @Autowired
     private RefreshTokenRepository _refreshTokenRepository;
 
-    /**
-     * Crea un refresh token para una cuenta
-     * Si ya existe uno, lo revoca y crea uno nuevo
-     */
     @Transactional
     public RefreshToken createRefreshToken(Account account) {
         Logger.info(getClass(), "Creating refresh token for account ID: " + account.getIdAccount());
 
-        // Revocar tokens existentes de esta cuenta
         revokeTokensByAccount(account);
-
-        // Crear nuevo refresh token
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setAccount(account);
         refreshToken.setToken(UUID.randomUUID().toString());
@@ -49,18 +42,11 @@ public class RefreshTokenService {
         return saved;
     }
 
-    /**
-     * Busca y valida un refresh token
-     */
     public RefreshToken findByToken(String token) {
         return _refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new TokenRefreshException(token, "Refresh token not found"));
     }
 
-    /**
-     * Verifica si un refresh token es válido
-     * Un token es válido si existe, no está expirado y no está revocado
-     */
     @Transactional
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.isRevoked()) {
@@ -78,9 +64,6 @@ public class RefreshTokenService {
         return token;
     }
 
-    /**
-     * Revoca un refresh token específico
-     */
     @Transactional
     public void revokeToken(String token) {
         Logger.info(getClass(), "Revoking refresh token");
@@ -94,18 +77,12 @@ public class RefreshTokenService {
         }
     }
 
-    /**
-     * Revoca todos los tokens de una cuenta (útil para logout en todos los dispositivos)
-     */
     @Transactional
     public void revokeTokensByAccount(Account account) {
         Logger.info(getClass(), "Revoking all tokens for account ID: " + account.getIdAccount());
         _refreshTokenRepository.revokeAllByAccountId(account.getIdAccount());
     }
 
-    /**
-     * Elimina físicamente todos los tokens de una cuenta
-     */
     @Transactional
     public void deleteTokensByAccount(Account account) {
         Logger.info(getClass(), "Deleting all tokens for account ID: " + account.getIdAccount());

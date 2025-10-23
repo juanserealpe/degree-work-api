@@ -2,9 +2,11 @@ package co.edu.unicauca.controllers;
 
 import co.edu.unicauca.dtos.JwtResponseDTO;
 import co.edu.unicauca.dtos.LoginRequestDTO;
+import co.edu.unicauca.entities.Admin;
 import co.edu.unicauca.entities.User;
 import co.edu.unicauca.enums.Role;
 import co.edu.unicauca.exceptions.TokenRefreshException;
+import co.edu.unicauca.services.AdminService;
 import co.edu.unicauca.services.AuthService;
 import co.edu.unicauca.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     @Autowired
     private AuthService _authService;
+
+    @Autowired
+    private AdminService _adminService;
 
     @Autowired
     private UserService _userService;
@@ -81,7 +86,6 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> logoutAllDevices(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            // Extraer el ID de la cuenta del UserDetails
             Long accountId = ((co.edu.unicauca.authentication.AccountDetails) userDetails).getId();
             _authService.logoutAllDevices(accountId);
             return ResponseEntity.ok("Logged out from all devices successfully");
@@ -124,6 +128,20 @@ public class AuthController {
     public ResponseEntity<?> registerDirector(@RequestBody User user) {
         try {
             User saved = _userService.userRegister(user, Role.DIRECTOR);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while registering the director");
+        }
+    }
+
+    @PostMapping("/register-admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> registerAdmin(@RequestBody Admin user) {
+        try {
+            Admin saved = _adminService.adminRegister(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

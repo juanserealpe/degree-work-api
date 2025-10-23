@@ -10,7 +10,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_person")
+    @Column(name = "id_user")
     private Long idPerson;
 
     @Column(name = "names", nullable = false)
@@ -20,7 +20,7 @@ public class User {
     private String lastNames;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id_person", referencedColumnName = "id_account")
+    @JoinColumn(name = "id_user", referencedColumnName = "id_account")
     @MapsId
     private Account account;
 

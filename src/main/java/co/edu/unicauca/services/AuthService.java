@@ -4,10 +4,9 @@ import co.edu.unicauca.authentication.AccountDetails;
 import co.edu.unicauca.dtos.JwtResponseDTO;
 import co.edu.unicauca.dtos.LoginRequestDTO;
 import co.edu.unicauca.entities.Account;
-import co.edu.unicauca.entities.Student;
-import co.edu.unicauca.enums.Role;
+import co.edu.unicauca.entities.RefreshToken;
+import co.edu.unicauca.exceptions.TokenRefreshException;
 import co.edu.unicauca.repositories.AccountRepository;
-import co.edu.unicauca.repositories.StudentRepository;
 import co.edu.unicauca.utilities.JwtUtils;
 import co.edu.unicauca.utilities.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -32,21 +29,20 @@ public class AuthService {
     private JwtUtils jwtUtils;
 
     @Autowired
+    private RefreshTokenService refreshTokenService;
+
+    @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     /**
-     * Autentica un usuario y genera un JWT
+     * Autentica un usuario y genera JWT + Refresh Token
      */
+    @Transactional
     public JwtResponseDTO authenticateUser(LoginRequestDTO loginRequest) {
         Logger.info(getClass(), "Attempting login for email: " + loginRequest.getEmail());
 
         try {
+            // Autenticar
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
@@ -55,8 +51,17 @@ public class AuthService {
             );
 
             AccountDetails userDetails = (AccountDetails) auth.getPrincipal();
-            String token = jwtUtils.generateJwtToken(userDetails);
 
+            // Generar access token
+            String accessToken = jwtUtils.generateJwtToken(userDetails);
+
+            // Generar refresh token
+            Account account = accountRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Account not found"));
+
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(account);
+
+            // Extraer roles
             List<String> roles = userDetails.getAuthorities()
                     .stream()
                     .map(a -> a.getAuthority())
@@ -65,67 +70,80 @@ public class AuthService {
             Logger.success(getClass(), "Login successful for user ID: " + userDetails.getId()
                     + " | Roles: " + roles);
 
-            return new JwtResponseDTO(token, userDetails.getId(), roles);
+            return new JwtResponseDTO(
+                    accessToken,
+                    refreshToken.getToken(),
+                    userDetails.getId(),
+                    roles
+            );
 
         } catch (BadCredentialsException e) {
-            Logger.error(getClass(), "Login failed for email: " + loginRequest.getEmail()
-                    + " | Reason: Invalid credentials");
+            Logger.error(getClass(), "Login failed - Invalid credentials");
             throw new BadCredentialsException("Invalid email or password");
-        } catch (Exception e) {
-            Logger.error(getClass(), "Login failed for email: " + loginRequest.getEmail()
-                    + " | Reason: " + e.getMessage());
-            throw new RuntimeException("Authentication error: " + e.getMessage());
         }
     }
 
     /**
-     * Registra un nuevo estudiante
+     * Refresca el access token usando un refresh token válido
      */
     @Transactional
-    public Student registerStudent(Student student) {
-        Logger.info(getClass(), "Attempting to register new student with email: "
-                + student.getAccount().getEmail());
-
-        // Validar que el email no exista
-        if (emailExists(student.getAccount().getEmail())) {
-            Logger.warn(getClass(), "Registration failed — email already in use: "
-                    + student.getAccount().getEmail());
-            throw new IllegalArgumentException("Email already in use");
-        }
+    public JwtResponseDTO refreshAccessToken(String requestRefreshToken) {
+        Logger.info(getClass(), "Attempting to refresh access token");
 
         try {
-            // Encriptar contraseña y asignar rol
-            student.getAccount().setPassword(
-                    passwordEncoder.encode(student.getAccount().getPassword())
-            );
-            student.getAccount().setRole(Role.STUDENT);
+            // Buscar y validar el refresh token
+            RefreshToken refreshToken = refreshTokenService.findByToken(requestRefreshToken);
+            refreshTokenService.verifyExpiration(refreshToken);
 
-            // Guardar estudiante
-            Student saved = studentRepository.save(student);
+            // Obtener la cuenta asociada
+            Account account = refreshToken.getAccount();
 
-            Logger.success(getClass(), "Student registered successfully. ID: "
-                    + saved.getIdPerson() + " | Email: " + saved.getAccount().getEmail());
+            // Generar nuevo access token
+            AccountDetails userDetails = new AccountDetails(account);
+            String newAccessToken = jwtUtils.generateJwtToken(userDetails);
 
-            return saved;
+            // Extraer roles
+            List<String> roles = userDetails.getAuthorities()
+                    .stream()
+                    .map(a -> a.getAuthority())
+                    .toList();
 
-        } catch (Exception e) {
-            Logger.error(getClass(), "Unexpected error while registering student: "
-                    + e.getMessage());
-            throw new RuntimeException("Error registering student: " + e.getMessage());
+            Logger.success(getClass(), "Access token refreshed successfully for user ID: "
+                    + account.getIdAccount());
+
+            // Retornar solo el nuevo access token (el refresh token sigue siendo válido)
+            return new JwtResponseDTO(newAccessToken, userDetails.getId(), roles);
+
+        } catch (TokenRefreshException e) {
+            Logger.error(getClass(), "Token refresh failed: " + e.getMessage());
+            throw e;
         }
     }
 
     /**
-     * Verifica si un email ya existe en el sistema
+     * Logout: revoca el refresh token del usuario
      */
-    public boolean emailExists(String email) {
-        return accountRepository.findByEmail(email).isPresent();
+    @Transactional
+    public void logout(String refreshToken) {
+        Logger.info(getClass(), "Processing logout");
+
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            refreshTokenService.revokeToken(refreshToken);
+            Logger.success(getClass(), "Logout successful - token revoked");
+        }
     }
 
     /**
-     * Busca una cuenta por email
+     * Logout de todos los dispositivos: revoca todos los tokens de la cuenta
      */
-    public Optional<Account> findAccountByEmail(String email) {
-        return accountRepository.findByEmail(email);
+    @Transactional
+    public void logoutAllDevices(Long accountId) {
+        Logger.info(getClass(), "Logging out all devices for account ID: " + accountId);
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        refreshTokenService.revokeTokensByAccount(account);
+        Logger.success(getClass(), "All devices logged out for account ID: " + accountId);
     }
 }

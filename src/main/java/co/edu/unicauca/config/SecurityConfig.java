@@ -42,7 +42,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register-student", "/auth/register-director").permitAll()
+                        // Endpoints públicos de autenticación
+                        .requestMatchers(
+                                "/auth/login",
+                                "/auth/register-student",
+                                "/auth/register-coordinator",
+                                "/auth/register-director",
+                                "/auth/refresh",
+                                "/auth/logout"
+                        ).permitAll()
+
+                        // Todos los demás endpoints requieren autenticación
                         .anyRequest().authenticated()
                 );
 

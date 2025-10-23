@@ -22,6 +22,8 @@ public class JwtResponseDTO {
         this.roles = roles;
     }
 
+    public JwtResponseDTO(){}
+
     public String getToken() { return token; }
     public String getType() { return type; }
     public Long getIdUser() { return idUser; }

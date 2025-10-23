@@ -26,7 +26,7 @@ public class StudentService {
 
         accountService.validateEmailNotExists(student.getAccount().getEmail());
         accountService.prepareAccountForRegistration(student.getAccount());
-        student.getAccount().setRole(Role.STUDENT);
+        student.getAccount().addRole(Role.STUDENT);
         validateStudentData(student);
         Student saved = studentRepository.save(student);
         Logger.success(getClass(), "Student registered successfully. ID: "

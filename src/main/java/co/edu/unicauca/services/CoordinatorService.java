@@ -23,7 +23,7 @@ public class CoordinatorService {
                 + coordinator.getAccount().getEmail());
         accountService.validateEmailNotExists(coordinator.getAccount().getEmail());
         accountService.prepareAccountForRegistration(coordinator.getAccount());
-        coordinator.getAccount().setRole(Role.COORDINATOR);
+        coordinator.getAccount().addRole(Role.COORDINATOR);
         validateCoordinatorData(coordinator);
         Coordinator saved = coordinatorRepository.save(coordinator);
 

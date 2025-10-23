@@ -3,6 +3,9 @@ package co.edu.unicauca.entities;
 import co.edu.unicauca.enums.Role;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "account")
 public class Account {
@@ -17,9 +20,11 @@ public class Account {
     @Column(nullable = false, name = "password")
     private String password;
 
-    @Column(nullable = false)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "account_roles", joinColumns = @JoinColumn(name = "account_id"))
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(name = "role")
+    private Set<Role> roles = new HashSet<>();
 
     // Getters & setters
     public Long getIdAccount() {return idAccount;}
@@ -31,6 +36,11 @@ public class Account {
     public String getPassword() {return password;}
     public void setPassword(String password) {this.password = password;}
 
-    public Role getRole() {return role;}
-    public void setRole(Role role) {this.role = role;}
+    public Set<Role> getRoles() { return roles; }
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
+
+    // Helper methods
+    public void addRole(Role role) {this.roles.add(role);}
+    public void removeRole(Role role) {this.roles.remove(role);}
+    public boolean hasRole(Role role) {return this.roles.contains(role);}
 }

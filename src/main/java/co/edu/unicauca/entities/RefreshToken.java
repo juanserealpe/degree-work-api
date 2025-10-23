@@ -14,7 +14,7 @@ public class RefreshToken {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
@@ -27,9 +27,7 @@ public class RefreshToken {
     @Column(name = "revoked")
     private boolean revoked = false;
 
-    public RefreshToken() {
-        this.createdAt = Instant.now();
-    }
+    public RefreshToken() {this.createdAt = Instant.now();}
 
     // Getters and Setters
     public Long getId() {return id;}

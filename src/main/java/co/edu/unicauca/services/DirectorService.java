@@ -24,7 +24,7 @@ public class DirectorService {
 
         accountService.validateEmailNotExists(director.getAccount().getEmail());
         accountService.prepareAccountForRegistration(director.getAccount());
-        director.getAccount().setRole(Role.DIRECTOR);
+        director.getAccount().addRole(Role.DIRECTOR);
 
         validateDirectorData(director);
 

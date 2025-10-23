@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 public class AccountService {
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountRepository _accountRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     public boolean emailExists(String email) {
-        return accountRepository.findByEmail(email).isPresent();
+        return _accountRepository.findByEmail(email).isPresent();
     }
 
     public void validateEmailNotExists(String email) {

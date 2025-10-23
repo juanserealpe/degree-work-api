@@ -23,16 +23,16 @@ import java.util.List;
 public class AuthService {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager _authenticationManager;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtUtils _jwtUtils;
 
     @Autowired
-    private RefreshTokenService refreshTokenService;
+    private RefreshTokenService _refreshTokenService;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountRepository _accountRepository;
 
     /**
      * Autentica un usuario y genera JWT + Refresh Token
@@ -43,7 +43,7 @@ public class AuthService {
 
         try {
             // Autenticar
-            Authentication auth = authenticationManager.authenticate(
+            Authentication auth = _authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
                             loginRequest.getPassword()
@@ -51,17 +51,11 @@ public class AuthService {
             );
 
             AccountDetails userDetails = (AccountDetails) auth.getPrincipal();
-
-            // Generar access token
-            String accessToken = jwtUtils.generateJwtToken(userDetails);
-
-            // Generar refresh token
-            Account account = accountRepository.findByEmail(userDetails.getUsername())
+            String accessToken = _jwtUtils.generateJwtToken(userDetails);
+            Account account = _accountRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("Account not found"));
+            RefreshToken refreshToken = _refreshTokenService.createRefreshToken(account);
 
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(account);
-
-            // Extraer roles
             List<String> roles = userDetails.getAuthorities()
                     .stream()
                     .map(a -> a.getAuthority())
@@ -92,15 +86,15 @@ public class AuthService {
 
         try {
             // Buscar y validar el refresh token
-            RefreshToken refreshToken = refreshTokenService.findByToken(requestRefreshToken);
-            refreshTokenService.verifyExpiration(refreshToken);
+            RefreshToken refreshToken = _refreshTokenService.findByToken(requestRefreshToken);
+            _refreshTokenService.verifyExpiration(refreshToken);
 
             // Obtener la cuenta asociada
             Account account = refreshToken.getAccount();
 
             // Generar nuevo access token
             AccountDetails userDetails = new AccountDetails(account);
-            String newAccessToken = jwtUtils.generateJwtToken(userDetails);
+            String newAccessToken = _jwtUtils.generateJwtToken(userDetails);
 
             // Extraer roles
             List<String> roles = userDetails.getAuthorities()
@@ -128,7 +122,7 @@ public class AuthService {
         Logger.info(getClass(), "Processing logout");
 
         if (refreshToken != null && !refreshToken.isEmpty()) {
-            refreshTokenService.revokeToken(refreshToken);
+            _refreshTokenService.revokeToken(refreshToken);
             Logger.success(getClass(), "Logout successful - token revoked");
         }
     }
@@ -140,10 +134,10 @@ public class AuthService {
     public void logoutAllDevices(Long accountId) {
         Logger.info(getClass(), "Logging out all devices for account ID: " + accountId);
 
-        Account account = accountRepository.findById(accountId)
+        Account account = _accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        refreshTokenService.revokeTokensByAccount(account);
+        _refreshTokenService.revokeTokensByAccount(account);
         Logger.success(getClass(), "All devices logged out for account ID: " + accountId);
     }
 }

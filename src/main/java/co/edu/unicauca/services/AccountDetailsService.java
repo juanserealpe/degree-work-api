@@ -19,7 +19,7 @@ import co.edu.unicauca.utilities.Logger;
 public class AccountDetailsService implements UserDetailsService {
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountRepository _accountRepository;
 
     /**
      * Método requerido por Spring Security para cargar un usuario por su username (email en este caso)
@@ -29,7 +29,7 @@ public class AccountDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Logger.info(getClass(), "Loading user details for email: " + email);
 
-        Account account = accountRepository.findByEmail(email)
+        Account account = _accountRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     Logger.error(getClass(), "User not found with email: " + email);
                     return new UsernameNotFoundException("User not found with email: " + email);

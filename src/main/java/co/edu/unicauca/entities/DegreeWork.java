@@ -15,17 +15,24 @@ public class DegreeWork {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Modality modality;
-    
-    @OneToMany(mappedBy = "degreeWork")
-    private List<Student> students;
-    
+
+
     @ManyToOne
     @JoinColumn(name = "id_coordinator", nullable = false)
-    private Coordinator coordinator;
-    
+    private User coordinator;
+
     @ManyToOne
     @JoinColumn(name = "id_director", nullable = false)
-    private Director director;
+    private User director;
+
+    @ManyToMany
+    @JoinTable(
+            name = "degree_work_students",
+            joinColumns = @JoinColumn(name = "degree_work_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> students;
+
 
     // Getters & setters
     public long getIdDegreeWork() { return idDegreeWork; }
@@ -34,12 +41,12 @@ public class DegreeWork {
     public Modality getModality() { return modality; }
     public void setModality(Modality modality) { this.modality = modality; }
 
-    public List<Student> getStudents() { return students; }
-    public void setStudents(List<Student> students) { this.students = students; }
+    public List<User> getStudents() { return students; }
+    public void setStudents(List<User> students) { this.students = students; }
 
-    public Coordinator getCoordinator() { return coordinator; }
-    public void setCoordinator(Coordinator coordinator) { this.coordinator = coordinator; }
-    
-    public Director getDirector(){return director;}
-    public void setDirector(Director director){this.director = director;}
+    public User getCoordinator() { return coordinator; }
+    public void setCoordinator(User coordinator) { this.coordinator = coordinator; }
+
+    public User getDirector(){return director;}
+    public void setDirector(User director){this.director = director;}
 }

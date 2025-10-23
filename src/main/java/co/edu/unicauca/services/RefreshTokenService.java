@@ -21,7 +21,7 @@ public class RefreshTokenService {
     private Long refreshTokenDurationMs;
 
     @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private RefreshTokenRepository _refreshTokenRepository;
 
     /**
      * Crea un refresh token para una cuenta
@@ -41,7 +41,7 @@ public class RefreshTokenService {
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshToken.setRevoked(false);
 
-        RefreshToken saved = refreshTokenRepository.save(refreshToken);
+        RefreshToken saved = _refreshTokenRepository.save(refreshToken);
 
         Logger.success(getClass(), "Refresh token created successfully for account ID: "
                 + account.getIdAccount());
@@ -53,7 +53,7 @@ public class RefreshTokenService {
      * Busca y valida un refresh token
      */
     public RefreshToken findByToken(String token) {
-        return refreshTokenRepository.findByToken(token)
+        return _refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new TokenRefreshException(token, "Refresh token not found"));
     }
 
@@ -70,7 +70,7 @@ public class RefreshTokenService {
 
         if (token.isExpired()) {
             Logger.warn(getClass(), "Refresh token has expired: " + token.getToken());
-            refreshTokenRepository.delete(token);
+            _refreshTokenRepository.delete(token);
             throw new TokenRefreshException(token.getToken(),
                     "Refresh token has expired. Please login again");
         }
@@ -85,11 +85,11 @@ public class RefreshTokenService {
     public void revokeToken(String token) {
         Logger.info(getClass(), "Revoking refresh token");
 
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(token);
+        Optional<RefreshToken> refreshToken = _refreshTokenRepository.findByToken(token);
         if (refreshToken.isPresent()) {
             RefreshToken rt = refreshToken.get();
             rt.setRevoked(true);
-            refreshTokenRepository.save(rt);
+            _refreshTokenRepository.save(rt);
             Logger.success(getClass(), "Refresh token revoked successfully");
         }
     }
@@ -100,7 +100,7 @@ public class RefreshTokenService {
     @Transactional
     public void revokeTokensByAccount(Account account) {
         Logger.info(getClass(), "Revoking all tokens for account ID: " + account.getIdAccount());
-        refreshTokenRepository.revokeAllByAccountId(account.getIdAccount());
+        _refreshTokenRepository.revokeAllByAccountId(account.getIdAccount());
     }
 
     /**
@@ -109,7 +109,7 @@ public class RefreshTokenService {
     @Transactional
     public void deleteTokensByAccount(Account account) {
         Logger.info(getClass(), "Deleting all tokens for account ID: " + account.getIdAccount());
-        refreshTokenRepository.deleteByAccountId(account.getIdAccount());
+        _refreshTokenRepository.deleteByAccountId(account.getIdAccount());
     }
 
     /**
@@ -118,7 +118,7 @@ public class RefreshTokenService {
     @Transactional
     public int cleanupExpiredTokens() {
         Logger.info(getClass(), "Cleaning up expired refresh tokens");
-        int deletedCount = refreshTokenRepository.deleteExpiredTokens(Instant.now());
+        int deletedCount = _refreshTokenRepository.deleteExpiredTokens(Instant.now());
         Logger.success(getClass(), "Deleted " + deletedCount + " expired refresh tokens");
         return deletedCount;
     }

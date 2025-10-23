@@ -5,9 +5,8 @@ import jakarta.persistence.*;
 @MappedSuperclass
 public abstract class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_person")
-    private long idPerson;
+    private Long idPerson;
 
     @Column(name = "names", nullable = false)
     private String names;
@@ -15,16 +14,21 @@ public abstract class Person {
     @Column(name = "last_names", nullable = false)
     private String lastNames;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "account_id")
+    @OneToOne
+    @JoinColumn(name = "id_person")
+    @MapsId
     private Account account;
 
-    public long getIdPerson() {return idPerson;}
-    public void setIdPerson(long idPerson) {this.idPerson = idPerson;}
-    public String getNames() {return names;}
-    public void setNames(String names) {this.names = names;}
-    public String getLastNames() {return lastNames;}
-    public void setLastNames(String lastNames) {this.lastNames = lastNames;}
-    public Account getAccount() {return account;}
-    public void setAccount(Account account) {this.account = account;}
+    // Getters & Setters
+    public Long getIdPerson() { return idPerson; }
+    public void setIdPerson(Long idPerson) { this.idPerson = idPerson; }
+
+    public String getNames() { return names; }
+    public void setNames(String names) { this.names = names; }
+
+    public String getLastNames() { return lastNames; }
+    public void setLastNames(String lastNames) { this.lastNames = lastNames; }
+
+    public Account getAccount() { return account; }
+    public void setAccount(Account account) { this.account = account; }
 }

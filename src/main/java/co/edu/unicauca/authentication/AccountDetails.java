@@ -21,5 +21,7 @@ public class AccountDetails implements UserDetails {
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return true; }
+    public Long getId() {return account.getIdAccount();}
+    public Account getAccount() {return account;}
 }
 

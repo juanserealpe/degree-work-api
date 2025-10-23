@@ -11,13 +11,7 @@ import java.util.stream.Collectors;
 public class AccountDetails implements UserDetails {
     private final Account account;
 
-    public AccountDetails(Account account) {
-        this.account = account;
-    }
-
-    public Long getId() {
-        return account.getIdAccount();
-    }
+    public AccountDetails(Account account) { this.account = account; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -26,16 +20,13 @@ public class AccountDetails implements UserDetails {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public String getPassword() {return account.getPassword();}
-    @Override
-    public String getUsername() {return account.getEmail();}
-    @Override
-    public boolean isAccountNonExpired() {return true;}
-    @Override
-    public boolean isAccountNonLocked() {return true;}
-    @Override
-    public boolean isCredentialsNonExpired() {return true;}
-    @Override
-    public boolean isEnabled() {return true;}
+    @Override public String getPassword() { return account.getPassword(); }
+    @Override public String getUsername() { return account.getEmail(); }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
+
+    public Long getId() {return account.getIdAccount();}
+    public Account getAccount() {return account;}
 }

@@ -1,13 +1,15 @@
 package co.edu.unicauca.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_person")
     private Long idPerson;
 
@@ -17,20 +19,22 @@ public class User {
     @Column(name = "last_names", nullable = false)
     private String lastNames;
 
-    @OneToOne
-    @JoinColumn(name = "id_person")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_person", referencedColumnName = "id_account")
     @MapsId
     private Account account;
 
     @OneToMany(mappedBy = "director", fetch = FetchType.LAZY)
-    private List<DegreeWork> directedWorks;
+    @JsonIgnoreProperties({"director", "coordinator", "students"})
+    private List<DegreeWork> directedWorks = new ArrayList<>();
 
     @OneToMany(mappedBy = "coordinator", fetch = FetchType.LAZY)
-    private List<DegreeWork> coordinatedWorks;
+    @JsonIgnoreProperties({"director", "coordinator", "students"})
+    private List<DegreeWork> coordinatedWorks = new ArrayList<>();
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private List<DegreeWork> enrolledWorks;
-
+    @JsonIgnoreProperties({"director", "coordinator", "students"})
+    private List<DegreeWork> enrolledWorks = new ArrayList<>();
 
     // Getters & Setters
     public Long getIdPerson() { return idPerson; }
@@ -43,7 +47,7 @@ public class User {
     public void setLastNames(String lastNames) { this.lastNames = lastNames; }
 
     public Account getAccount() { return account; }
-    public void setAccount(Account account) { this.account = account; }
+    public void setAccount(Account account) {this.account = account;}
 
     public List<DegreeWork> getDirectedWorks() {return directedWorks;}
     public void setDirectedWorks(List<DegreeWork> directedWorks) {this.directedWorks = directedWorks;}

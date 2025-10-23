@@ -1,8 +1,10 @@
 package co.edu.unicauca.entities;
 
 import co.edu.unicauca.enums.Modality;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -10,33 +12,34 @@ import java.util.List;
 public class DegreeWork {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idDegreeWork;
+    private Long idDegreeWork;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Modality modality;
 
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinator", nullable = false)
+    @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
     private User coordinator;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_director", nullable = false)
+    @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
     private User director;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "degree_work_students",
             joinColumns = @JoinColumn(name = "degree_work_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> students;
-
+    @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
+    private List<User> students = new ArrayList<>();
 
     // Getters & setters
-    public long getIdDegreeWork() { return idDegreeWork; }
-    public void setIdDegreeWork(long idDegreeWork) { this.idDegreeWork = idDegreeWork; }
+    public Long getIdDegreeWork() { return idDegreeWork; }
+    public void setIdDegreeWork(Long idDegreeWork) { this.idDegreeWork = idDegreeWork; }
 
     public Modality getModality() { return modality; }
     public void setModality(Modality modality) { this.modality = modality; }
@@ -49,4 +52,14 @@ public class DegreeWork {
 
     public User getDirector(){return director;}
     public void setDirector(User director){this.director = director;}
+
+    public void addStudent(User student) {
+        students.add(student);
+        student.getEnrolledWorks().add(this);
+    }
+
+    public void removeStudent(User student) {
+        students.remove(student);
+        student.getEnrolledWorks().remove(this);
+    }
 }

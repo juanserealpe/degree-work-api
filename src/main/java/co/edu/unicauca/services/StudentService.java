@@ -1,6 +1,7 @@
 package co.edu.unicauca.services;
 
 import co.edu.unicauca.entities.User;
+import co.edu.unicauca.enums.Role;
 import co.edu.unicauca.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,6 @@ public class StudentService {
     private UserRepository _userRepository;
 
     @Transactional
-    public List<User> getAllStudents() { return _userRepository.findAllStudents();}
-
+    public List<User> getAllStudents() { return _userRepository.findByAccountRolesContaining(Role.STUDENT);}
 
 }

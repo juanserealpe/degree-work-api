@@ -1,7 +1,10 @@
 package co.edu.unicauca.entities;
 
+import co.edu.unicauca.enums.DegreeWorkStatus;
 import co.edu.unicauca.enums.Modality;
+import co.edu.unicauca.enums.ProcessStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -15,14 +18,11 @@ public class DegreeWork {
     private Long idDegreeWork;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "modality",nullable = false)
     private Modality modality;
 
     @Column(name = "tittle", nullable = false, unique = true, length = 200)
     private String tittle;
-
-    @Column(name = "failed_attempts", nullable = false)
-    private byte failedAttempts = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinator", nullable = false)
@@ -43,14 +43,22 @@ public class DegreeWork {
     @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
     private List<User> students = new ArrayList<>();
 
+    @OneToMany(mappedBy = "degreeWork", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Process> processes = new ArrayList<>();
+
+
+    @Column(name = "status")
+    private DegreeWorkStatus status;
+
     // Constructors
-    public DegreeWork() { this.failedAttempts = 0; }
+    public DegreeWork() {}
     public DegreeWork(Modality modality, String tittle, User coordinator, User director) {
         this.modality = modality;
         this.tittle = tittle;
         this.coordinator = coordinator;
         this.director = director;
-        this.failedAttempts = 0;
+        this.status = DegreeWorkStatus.EN_PROCESO;
     }
 
     // Getters & Setters
@@ -63,9 +71,6 @@ public class DegreeWork {
     public String getTittle() { return tittle; }
     public void setTittle(String tittle) { this.tittle = tittle; }
 
-    public byte getFailedAttempts() { return failedAttempts; }
-    public void setFailedAttempts(byte failedAttempts) { this.failedAttempts = failedAttempts; }
-
     public User getCoordinator() { return coordinator; }
     public void setCoordinator(User coordinator) { this.coordinator = coordinator; }
 
@@ -74,6 +79,10 @@ public class DegreeWork {
 
     public List<User> getStudents() { return students; }
     public void setStudents(List<User> students) { this.students = students; }
+
+    public List<Process> getProcesses(){return processes;}
+
+    private DegreeWorkStatus getStatus(){return status;}
 
     // Helper methods
     public void addStudent(User student) {
@@ -94,8 +103,14 @@ public class DegreeWork {
         student.getEnrolledWorks().remove(this);
     }
 
-    // Optional helper
-    public void incrementFailedAttempts() {
-        if (failedAttempts < Byte.MAX_VALUE) failedAttempts++;
+    public void addProcess(Process process){
+        if(processes.isEmpty()){
+            processes.add(process);
+        }else{
+            Process a = processes.get(processes.size());
+            if(a.getProcess().equals(ProcessStatus.APROVADO)){
+                processes.add(process);
+            }
+        }
     }
 }

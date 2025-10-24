@@ -1,45 +1,101 @@
 package co.edu.unicauca.entities;
 
-import co.edu.unicauca.enums.ModalityENUM;
+import co.edu.unicauca.enums.Modality;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "degree_work")
+@Table(name = "degreeworks")
 public class DegreeWork {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idDegreeWork;
+    private Long idDegreeWork;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ModalityENUM modality;
-    
-    @OneToMany(mappedBy = "degreeWork")
-    private List<Student> students;
-    
-    @ManyToOne
+    private Modality modality;
+
+    @Column(name = "tittle", nullable = false, unique = true, length = 200)
+    private String tittle;
+
+    @Column(name = "failed_attempts", nullable = false)
+    private byte failedAttempts = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinator", nullable = false)
-    private Coordinator coordinator;
-    
-    @ManyToOne
+    @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
+    private User coordinator;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_director", nullable = false)
-    private Director director;
+    @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
+    private User director;
 
-    // Getters & setters
-    public long getIdDegreeWork() { return idDegreeWork; }
-    public void setIdDegreeWork(long idDegreeWork) { this.idDegreeWork = idDegreeWork; }
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "degree_work_students",
+            joinColumns = @JoinColumn(name = "degree_work_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnoreProperties({"directedWorks", "coordinatedWorks", "enrolledWorks", "account"})
+    private List<User> students = new ArrayList<>();
 
-    public ModalityENUM getModality() { return modality; }
-    public void setModality(ModalityENUM modality) { this.modality = modality; }
+    // Constructors
+    public DegreeWork() { this.failedAttempts = 0; }
+    public DegreeWork(Modality modality, String tittle, User coordinator, User director) {
+        this.modality = modality;
+        this.tittle = tittle;
+        this.coordinator = coordinator;
+        this.director = director;
+        this.failedAttempts = 0;
+    }
 
-    public List<Student> getStudents() { return students; }
-    public void setStudents(List<Student> students) { this.students = students; }
+    // Getters & Setters
+    public Long getIdDegreeWork() { return idDegreeWork; }
+    public void setIdDegreeWork(Long idDegreeWork) { this.idDegreeWork = idDegreeWork; }
 
-    public Coordinator getCoordinator() { return coordinator; }
-    public void setCoordinator(Coordinator coordinator) { this.coordinator = coordinator; }
-    
-    public Director getDirector(){return director;}
-    public void setDirector(Director director){this.director = director;}
+    public Modality getModality() { return modality; }
+    public void setModality(Modality modality) { this.modality = modality; }
+
+    public String getTittle() { return tittle; }
+    public void setTittle(String tittle) { this.tittle = tittle; }
+
+    public byte getFailedAttempts() { return failedAttempts; }
+    public void setFailedAttempts(byte failedAttempts) { this.failedAttempts = failedAttempts; }
+
+    public User getCoordinator() { return coordinator; }
+    public void setCoordinator(User coordinator) { this.coordinator = coordinator; }
+
+    public User getDirector() { return director; }
+    public void setDirector(User director) { this.director = director; }
+
+    public List<User> getStudents() { return students; }
+    public void setStudents(List<User> students) { this.students = students; }
+
+    // Helper methods
+    public void addStudent(User student) {
+        students.add(student);
+        student.getEnrolledWorks().add(this);
+    }
+
+    public void addStudents(List<User> students) {
+        if (students == null || students.isEmpty()) return;
+        for (User student : students) {
+            if (!this.students.contains(student)) this.students.add(student);
+            if (!student.getEnrolledWorks().contains(this)) student.getEnrolledWorks().add(this);
+        }
+    }
+
+    public void removeStudent(User student) {
+        students.remove(student);
+        student.getEnrolledWorks().remove(this);
+    }
+
+    // Optional helper
+    public void incrementFailedAttempts() {
+        if (failedAttempts < Byte.MAX_VALUE) failedAttempts++;
+    }
 }

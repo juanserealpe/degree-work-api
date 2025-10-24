@@ -6,20 +6,17 @@ import co.edu.unicauca.entities.DegreeWork;
 import co.edu.unicauca.entities.User;
 import co.edu.unicauca.repositories.DegreeWorkRepository;
 import co.edu.unicauca.utilities.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
 public class DegreeWorkService {
-
-    private final DegreeWorkRepository _degreeWorkRepository;
-    private final DegreeWorkValidator  _validator;
-
-    public DegreeWorkService(DegreeWorkRepository degreeWorkRepository, DegreeWorkValidator validator) {
-        this._degreeWorkRepository = degreeWorkRepository;
-        this._validator = validator;
-    }
+    @Autowired
+    private DegreeWorkRepository _degreeWorkRepository;
+    @Autowired
+    private DegreeWorkValidator  _validator;
 
     @Transactional
     public DegreeWork createDegreeWork(DegreeWorkRequestDTO dto) {

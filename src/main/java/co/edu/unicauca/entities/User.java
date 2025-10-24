@@ -11,7 +11,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    private Long idPerson;
+    private Long idUser;
 
     @Column(name = "names", nullable = false)
     private String names;
@@ -37,8 +37,8 @@ public class User {
     private List<DegreeWork> enrolledWorks = new ArrayList<>();
 
     // Getters & Setters
-    public Long getIdPerson() { return idPerson; }
-    public void setIdPerson(Long idPerson) { this.idPerson = idPerson; }
+    public Long getIdUser() { return idUser; }
+    public void setIdUser(Long idUser) { this.idUser = idUser; }
 
     public String getNames() { return names; }
     public void setNames(String names) { this.names = names; }

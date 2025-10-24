@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/degreework/create").permitAll()
                         .anyRequest().authenticated()
                 );
 

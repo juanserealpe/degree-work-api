@@ -29,7 +29,7 @@ public class UserService {
         }
 
         User resultSave = _userRepository.save(prmUser);
-        Logger.success(getClass(), "User registered successfully. ID: " + resultSave.getIdPerson() + " - Roles: " + account.getRoles());
+        Logger.success(getClass(), "User registered successfully. ID: " + resultSave.getIdUser() + " - Roles: " + account.getRoles());
 
         return resultSave;
     }

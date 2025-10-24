@@ -83,7 +83,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout-all")
-    @PreAuthorize("isAuthenticated()")
+    //@PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> logoutAllDevices(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             Long accountId = ((co.edu.unicauca.authentication.AccountDetails) userDetails).getId();
@@ -110,7 +110,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-coordinator")
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerCoordinator(@RequestBody User user) {
         try {
             User saved = _userService.userRegister(user, Role.COORDINATOR);
@@ -124,7 +124,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-director")
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerDirector(@RequestBody User user) {
         try {
             User saved = _userService.userRegister(user, Role.DIRECTOR);
@@ -138,7 +138,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerAdmin(@RequestBody Admin user) {
         try {
             Admin saved = _adminService.adminRegister(user);

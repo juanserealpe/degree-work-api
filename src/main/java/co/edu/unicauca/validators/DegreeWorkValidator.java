@@ -16,111 +16,58 @@ import java.util.Set;
 @Component
 public class DegreeWorkValidator {
 
-    private final UserRepository _userRepository;
-
-    public DegreeWorkValidator(UserRepository userRepository) {
-        this._userRepository = userRepository;
-    }
-
     public void validateRequest(DegreeWorkRequestDTO dto) {
         Logger.info(getClass(), "Starting DegreeWork request validation.");
 
-        if (dto == null) {
-            Logger.error(getClass(), "The request body is null.");
+        if (dto == null)
             throw new DegreeWorkException("The request body cannot be null.");
-        }
 
-        if (dto.getModality() == null) {
-            Logger.error(getClass(), "Modality is missing.");
+        if (dto.getModality() == null)
             throw new DegreeWorkException("The modality is required.");
-        }
 
-        if (dto.getTittle() == null || dto.getTittle().trim().isEmpty()) {
-            Logger.error(getClass(), "Tittle is empty or null.");
-            throw new DegreeWorkException("The tittle is required.");
-        }
+        if (dto.getTittle() == null || dto.getTittle().trim().isEmpty())
+            throw new DegreeWorkException("The title is required.");
 
-        if (dto.getCoordinatorEmail() == null || dto.getCoordinatorEmail().isBlank()) {
-            Logger.error(getClass(), "Coordinator email is missing.");
+        if (dto.getCoordinatorEmail() == null || dto.getCoordinatorEmail().isBlank())
             throw new DegreeWorkException("Coordinator email is required.");
-        }
 
-        if (dto.getDirectorEmail() == null || dto.getDirectorEmail().isBlank()) {
-            Logger.error(getClass(), "Director email is missing.");
+        if (dto.getDirectorEmail() == null || dto.getDirectorEmail().isBlank())
             throw new DegreeWorkException("Director email is required.");
-        }
 
-        if (dto.getStudentEmails() == null || dto.getStudentEmails().isEmpty()) {
-            Logger.error(getClass(), "No student emails provided.");
+        if (dto.getStudentEmails() == null || dto.getStudentEmails().isEmpty())
             throw new DegreeWorkException("At least one student email is required.");
-        }
-
-        Logger.success(getClass(), "DegreeWorkRequestDTO basic validation passed.");
     }
 
-    public User validateCoordinator(String email) {
-        Logger.info(getClass(), "Validating coordinator with email: " + email);
-
-        User coordinator = _userRepository.findByAccount_Email(email)
-                .orElseThrow(() -> {
-                    Logger.error(getClass(), "Coordinator not found: " + email);
-                    return new UserException("Coordinator not found: " + email);
-                });
-
-        if (!hasRole(coordinator.getAccount().getRoles(), Role.COORDINATOR)) {
-            Logger.error(getClass(), "Invalid role for coordinator: " + email);
-            throw new RoleException("User " + email + " is not a coordinator.");
-        }
-
-        Logger.success(getClass(), "Coordinator validated successfully: " + email);
-        return coordinator;
+    public void validateUniqueTitle(boolean titleExists, String title) {
+        if (titleExists)
+            throw new DegreeWorkException("A DegreeWork with title '" + title + "' already exists.");
     }
 
-    public User validateDirector(String email) {
-        Logger.info(getClass(), "Validating director with email: " + email);
+    public void validateUsers(User coordinator, User director, List<User> students, List<String> requestedEmails) {
 
-        User director = _userRepository.findByAccount_Email(email)
-                .orElseThrow(() -> {
-                    Logger.error(getClass(), "Director not found: " + email);
-                    return new UserException("Director not found: " + email);
-                });
+        if (!coordinator.getAccount().getRoles().contains(Role.COORDINATOR))
+            throw new RoleException("User " + coordinator.getAccount().getEmail() + " is not a coordinator.");
 
-        if (!hasRole(director.getAccount().getRoles(), Role.DIRECTOR)) {
-            Logger.error(getClass(), "Invalid role for director: " + email);
-            throw new RoleException("User " + email + " is not a director.");
+        if (!director.getAccount().getRoles().contains(Role.DIRECTOR))
+            throw new RoleException("User " + director.getAccount().getEmail() + " is not a director.");
+
+        if (students.size() != requestedEmails.size()) {
+            List<String> missing = requestedEmails.stream()
+                    .filter(email -> students.stream()
+                            .noneMatch(u -> u.getAccount().getEmail().equalsIgnoreCase(email)))
+                    .toList();
+            throw new DegreeWorkException("Students not found: " + missing);
         }
 
-        Logger.success(getClass(), "Director validated successfully: " + email);
-        return director;
-    }
+        if (students.size() > 2)
+            throw new DegreeWorkException("The degree work allows max 2 students.");
 
-    public List<User> validateStudents(List<String> emails) {
-        Logger.info(getClass(), "Validating student list: " + emails);
+        for (User s : students) {
+            if (!s.getAccount().getRoles().contains(Role.STUDENT))
+                throw new RoleException("User " + s.getAccount().getEmail() + " is not a student.");
 
-        List<User> students = _userRepository.findByAccount_EmailIn(emails);
-
-        if (students.size() > 2) {
-            Logger.error(getClass(), "More than two students provided.");
-            throw new DegreeWorkException("The degree work just allows max 2 students.");
+            if (!s.getEnrolledWorks().isEmpty())
+                throw new DegreeWorkException("Student " + s.getAccount().getEmail() + " already has a degree work.");
         }
-
-        for (User student : students) {
-            if (!hasRole(student.getAccount().getRoles(), Role.STUDENT)) {
-                Logger.error(getClass(), "Invalid role for student: " + student.getAccount().getEmail());
-                throw new RoleException("User " + student.getAccount().getEmail() + " is not a student.");
-            }
-
-            if (!student.getEnrolledWorks().isEmpty()) {
-                Logger.error(getClass(), "Student already has a degree work: " + student.getAccount().getEmail());
-                throw new DegreeWorkException("Student " + student.getAccount().getEmail() + " already has a degree work.");
-            }
-        }
-
-        Logger.success(getClass(), "All students validated successfully.");
-        return students;
-    }
-
-    protected boolean hasRole(Set<Role> roles, Role expectedRole) {
-        return roles.contains(expectedRole);
     }
 }

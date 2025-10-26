@@ -11,7 +11,6 @@ import java.util.Date;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "process_type")
 public abstract class Process {
-
     @Id
     @Column(name = "id_process")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,8 +33,7 @@ public abstract class Process {
 
     public Process() { }
 
-    public Process(Long id, Date date, TypeProcess process, DegreeWork degreeWork) {
-        this.id = id;
+    public Process(Date date, TypeProcess process, DegreeWork degreeWork) {
         this.date = date;
         this.process = process;
         this.degreeWork = degreeWork;

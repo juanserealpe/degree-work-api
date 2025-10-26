@@ -18,6 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+
+// CSRF temporaly desactivated
+
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -39,11 +42,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF completamente
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()) // Permitir iframes para H2 Console
+                )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-
-                        .requestMatchers("/auth/**", "/degreework/create").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2 Console
+                        .requestMatchers("/auth/**").permitAll() // Permitir todos los endpoints de autenticación
+                        .requestMatchers("/degreework/create").permitAll()
                         .anyRequest().authenticated()
                 );
 

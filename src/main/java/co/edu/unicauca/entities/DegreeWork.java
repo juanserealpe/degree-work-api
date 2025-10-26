@@ -107,7 +107,7 @@ public class DegreeWork {
         if(processes.isEmpty()){
             processes.add(process);
         }else{
-            Process a = processes.get(processes.size());
+            Process a = processes.get(processes.size()-1);
             if(a.getProcess().equals(ProcessStatus.APROVADO)){
                 processes.add(process);
             }

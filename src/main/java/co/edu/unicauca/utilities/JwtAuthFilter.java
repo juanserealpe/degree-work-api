@@ -27,9 +27,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {
+
+        String requestURI = req.getRequestURI();
+
+        // Saltar el filtro JWT para rutas públicas
+        if (shouldNotFilter(req)) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         try {
             String header = req.getHeader("Authorization");
-            String requestURI = req.getRequestURI();
 
             if (header != null && header.startsWith("Bearer ")) {
                 String token = header.substring(7);
@@ -57,5 +65,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(req, res);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        // Lista de rutas que no requieren JWT
+        return path.startsWith("/auth/") ||
+                path.startsWith("/h2-console") ||
+                path.equals("/favicon.ico") ||
+                path.startsWith("/degreework/create") ||
+                path.endsWith(".css") ||
+                path.endsWith(".js") ||
+                path.endsWith(".gif") ||
+                path.endsWith(".png") ||
+                path.endsWith(".jpg") ||
+                path.endsWith(".ico");
     }
 }

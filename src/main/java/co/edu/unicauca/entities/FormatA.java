@@ -36,6 +36,10 @@ public class FormatA extends Process {
     public String getUrl() { return url; }
     public void setUrl(String url) { this.url = url; }
 
-    public int getAttempts() { return failedAttempts; }
-    public void setAttempts(byte attempts) { this.failedAttempts = attempts; }
+    public byte getFailedAttempts() { return failedAttempts; }
+    public void setFailedAttempts(byte failedAttempts) { this.failedAttempts = failedAttempts; }
+
+    public List<String> getObservations() { return observations; }
+    public void setObservations(List<String> observations) { this.observations = observations; }
+
 }

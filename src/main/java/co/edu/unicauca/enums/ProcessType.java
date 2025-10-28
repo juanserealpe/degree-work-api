@@ -1,6 +1,6 @@
 package co.edu.unicauca.enums;
 
-public enum TypeProcess {
+public enum ProcessType {
     FORMAT_A,
     DRAFT
 }

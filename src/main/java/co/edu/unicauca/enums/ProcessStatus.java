@@ -1,7 +1,8 @@
 package co.edu.unicauca.enums;
 
 public enum ProcessStatus {
-    APROVADO,
-    RECHAZADO,
-    PENDIENTE
+    APPROVATED,
+    REJECTED_DEF,
+    PENDING,
+    REJECTED_TEMP
 }

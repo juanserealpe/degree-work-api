@@ -1,13 +1,14 @@
 package co.edu.unicauca.entities;
 
 import co.edu.unicauca.enums.ProcessStatus;
-import co.edu.unicauca.enums.TypeProcess;
+import co.edu.unicauca.enums.ProcessType;
+import co.edu.unicauca.interfaces.IProcessState;
+import co.edu.unicauca.fabrics.ProcessStateFactory;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -20,12 +21,12 @@ public abstract class Process {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "date")
+    @Column(name = "created_at")
     private LocalDateTime date = LocalDateTime.now();
 
     @Column(name = "type_process")
     @Enumerated(EnumType.STRING)
-    private TypeProcess process;
+    private ProcessType process;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "degree_work_id")
@@ -43,9 +44,24 @@ public abstract class Process {
     @OrderColumn(name = "position")
     private List<String> observations = new ArrayList<>();
 
+    @Transient
+    private IProcessState currentState;
+
+    public IProcessState getCurrentState() {
+        if (currentState == null) {
+            currentState = ProcessStateFactory.fromStatus(processStatus);
+        }
+        return currentState;
+    }
+
+    //Constructors
+
+    public Process() {
+    }
+
     public Process(DegreeWork degreeWork) {
         this.degreeWork = degreeWork;
-        this.processStatus = ProcessStatus.PENDIENTE;
+        this.processStatus = ProcessStatus.PENDING;
     }
 
     //Getters & setters
@@ -55,8 +71,8 @@ public abstract class Process {
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
 
-    public TypeProcess getProcess() { return process; }
-    public void setProcess(TypeProcess process) { this.process = process; }
+    public ProcessType getProcess() { return process; }
+    public void setProcess(ProcessType process) { this.process = process; }
 
     public DegreeWork getDegreeWork() { return degreeWork; }
     public void setDegreeWork(DegreeWork degreeWork) { this.degreeWork = degreeWork; }

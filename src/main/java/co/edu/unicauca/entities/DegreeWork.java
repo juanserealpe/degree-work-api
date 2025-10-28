@@ -108,7 +108,7 @@ public class DegreeWork {
             processes.add(process);
         }else{
             Process a = processes.get(processes.size()-1);
-            if(a.getProcess().equals(ProcessStatus.APROVADO)){
+            if(a.getProcess().equals(ProcessStatus.APPROVATED)){
                 processes.add(process);
             }
         }

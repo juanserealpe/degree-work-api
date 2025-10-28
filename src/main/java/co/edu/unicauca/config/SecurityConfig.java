@@ -48,10 +48,11 @@ public class SecurityConfig {
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2 Console
-                        .requestMatchers("/auth/**").permitAll() // Permitir todos los endpoints de autenticación
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/degreework/**").permitAll()
                         .requestMatchers("/director/**").permitAll()
+                        .requestMatchers("/coordinator/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

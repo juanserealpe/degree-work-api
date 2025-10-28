@@ -1,13 +1,14 @@
 package co.edu.unicauca.utilities;
 
-import co.edu.unicauca.services.AccountDetailsService;
+import co.edu.unicauca.authentication.AccountDetails;
+import co.edu.unicauca.entities.Account;
+import co.edu.unicauca.repositories.AccountRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,11 +18,11 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final AccountDetailsService detailsService;
+    private final AccountRepository accountRepository;
 
-    public JwtAuthFilter(JwtUtils jwtUtils, AccountDetailsService detailsService) {
+    public JwtAuthFilter(JwtUtils jwtUtils, AccountRepository accountRepository) {
         this.jwtUtils = jwtUtils;
-        this.detailsService = detailsService;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -30,7 +31,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String requestURI = req.getRequestURI();
 
-        // Saltar el filtro JWT para rutas públicas
         if (shouldNotFilter(req)) {
             chain.doFilter(req, res);
             return;
@@ -44,15 +44,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 Logger.info(getClass(), "JWT detected in request to " + requestURI);
 
                 if (jwtUtils.validateJwtToken(token)) {
-                    String email = jwtUtils.getUserNameFromJwtToken(token);
-                    Logger.success(getClass(), "JWT validated successfully for user: " + email);
+                    Long accountId = jwtUtils.getAccountIdFromJwtToken(token);
+                    Logger.success(getClass(), "JWT validated successfully for account ID: " + accountId);
 
-                    UserDetails userDetails = detailsService.loadUserByUsername(email);
+                    Account account = accountRepository.findById(accountId)
+                            .orElseThrow(() -> new RuntimeException("Account not found with ID: " + accountId));
+
+                    AccountDetails accountDetails = new AccountDetails(account);
                     UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            new UsernamePasswordAuthenticationToken(
+                                    accountDetails,
+                                    null,
+                                    accountDetails.getAuthorities()
+                            );
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
-                    Logger.info(getClass(), "Authentication context set for: " + email);
+                    Logger.info(getClass(), "Authentication context set for account ID: " + accountId
+                            + " (" + account.getEmail() + ")");
                 } else {
                     Logger.warn(getClass(), "Invalid JWT received for request to " + requestURI);
                 }
@@ -71,7 +79,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
-        // Lista de rutas que no requieren JWT
         return path.startsWith("/auth/") ||
                 path.startsWith("/h2-console") ||
                 path.equals("/favicon.ico") ||

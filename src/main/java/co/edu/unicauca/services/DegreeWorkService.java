@@ -27,7 +27,7 @@ public class DegreeWorkService {
         Logger.info(getClass(), "Starting creation process for DegreeWork with title: " + dto.getTittle());
         _validator.validateRequest(dto);
 
-        boolean titleExists = _degreeWorkRepository.findByTitle(dto.getTittle()).isPresent();
+        boolean titleExists = _degreeWorkRepository.findByTittle(dto.getTittle()).isPresent();
         _validator.validateUniqueTitle(titleExists, dto.getTittle());
 
         User coordinator = _userRepository.findByAccount_Email(dto.getCoordinatorEmail())

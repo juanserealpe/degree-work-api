@@ -4,7 +4,11 @@ import co.edu.unicauca.enums.ProcessStatus;
 import co.edu.unicauca.enums.TypeProcess;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "processes")
@@ -16,8 +20,8 @@ public abstract class Process {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date date;
+    @Column(name = "date")
+    private LocalDateTime date = LocalDateTime.now();
 
     @Column(name = "type_process")
     @Enumerated(EnumType.STRING)
@@ -31,20 +35,25 @@ public abstract class Process {
     @Column(name = "status")
     private ProcessStatus processStatus;
 
-    public Process() { }
+    @Column(name = "url")
+    private String url;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "format_a_observations", joinColumns = @JoinColumn(name = "format_a_id"))
+    @Column(name = "observation")
+    @OrderColumn(name = "position")
+    private List<String> observations = new ArrayList<>();
 
-    public Process(Date date, TypeProcess process, DegreeWork degreeWork) {
-        this.date = date;
-        this.process = process;
+    public Process(DegreeWork degreeWork) {
         this.degreeWork = degreeWork;
         this.processStatus = ProcessStatus.PENDIENTE;
     }
 
     //Getters & setters
+
     public Long getId() { return id; }
 
-    public Date getDate() { return date; }
-    public void setDate(Date date) { this.date = date; }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
 
     public TypeProcess getProcess() { return process; }
     public void setProcess(TypeProcess process) { this.process = process; }
@@ -54,5 +63,14 @@ public abstract class Process {
 
     public ProcessStatus getProcessStatus(){return processStatus;}
     public void setProcessStatus(ProcessStatus processStatus){this.processStatus = processStatus;}
+
+    public String getUrl() {return url;}
+    public void setUrl(String url) {this.url = url;}
+
+    public List<String> getObservations() {return observations;}
+    public void setObservations(List<String> observations) {this.observations = observations;}
+
+    //Helpers
+    public void addObservation(String observation){this.observations.add(observation);}
 }
 

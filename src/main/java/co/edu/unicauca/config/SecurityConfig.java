@@ -50,7 +50,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2 Console
                         .requestMatchers("/auth/**").permitAll() // Permitir todos los endpoints de autenticación
-                        .requestMatchers("/degreework/create").permitAll()
+                        .requestMatchers("/degreework/**").permitAll()
+                        .requestMatchers("/director/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

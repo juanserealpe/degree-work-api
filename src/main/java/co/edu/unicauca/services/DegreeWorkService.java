@@ -24,7 +24,7 @@ public class DegreeWorkService {
 
     @Transactional
     public DegreeWork createDegreeWork(DegreeWorkRequestDTO dto) {
-        Logger.info(getClass(), "Starting creation process for DegreeWork with title: " + dto.getTittle());
+        Logger.info(getClass(), "Starting creation DegreeWork with title: " + dto.getTittle());
         _validator.validateRequest(dto);
 
         boolean titleExists = _degreeWorkRepository.findByTittle(dto.getTittle()).isPresent();

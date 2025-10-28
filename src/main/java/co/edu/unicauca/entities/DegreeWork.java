@@ -58,7 +58,7 @@ public class DegreeWork {
         this.tittle = tittle;
         this.coordinator = coordinator;
         this.director = director;
-        this.status = DegreeWorkStatus.EN_PROCESO;
+        this.status = DegreeWorkStatus.IN_PROGRESS;
     }
 
     // Getters & Setters
@@ -82,7 +82,7 @@ public class DegreeWork {
 
     public List<Process> getProcesses(){return processes;}
 
-    private DegreeWorkStatus getStatus(){return status;}
+    public DegreeWorkStatus getStatus(){return status;}
 
     // Helper methods
     public void addStudent(User student) {
@@ -108,7 +108,7 @@ public class DegreeWork {
             processes.add(process);
         }else{
             Process a = processes.get(processes.size()-1);
-            if(a.getProcess().equals(ProcessStatus.APPROVATED)){
+            if(a.getProcess().equals(ProcessStatus.APPROVED)){
                 processes.add(process);
             }
         }

@@ -39,7 +39,6 @@ public class AuthService {
         Logger.info(getClass(), "Attempting login for email: " + loginRequest.getEmail());
 
         try {
-            // Autenticar
             Authentication auth = _authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
@@ -48,9 +47,12 @@ public class AuthService {
             );
 
             AccountDetails userDetails = (AccountDetails) auth.getPrincipal();
+
             String accessToken = _jwtUtils.generateJwtToken(userDetails);
-            Account account = _accountRepository.findByEmail(userDetails.getUsername())
+
+            Account account = _accountRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new RuntimeException("Account not found"));
+
             RefreshToken refreshToken = _refreshTokenService.createRefreshToken(account);
 
             List<String> roles = userDetails.getAuthorities()
@@ -58,7 +60,7 @@ public class AuthService {
                     .map(a -> a.getAuthority())
                     .toList();
 
-            Logger.success(getClass(), "Login successful for user ID: " + userDetails.getId()
+            Logger.success(getClass(), "Login successful for account ID: " + userDetails.getId()
                     + " | Roles: " + roles);
 
             return new JwtResponseDTO(
@@ -79,28 +81,23 @@ public class AuthService {
         Logger.info(getClass(), "Attempting to refresh access token");
 
         try {
-            // Buscar y validar el refresh token
             RefreshToken refreshToken = _refreshTokenService.findByToken(requestRefreshToken);
             _refreshTokenService.verifyExpiration(refreshToken);
 
-            // Obtener la cuenta asociada
             Account account = refreshToken.getAccount();
 
-            // Generar nuevo access token
             AccountDetails userDetails = new AccountDetails(account);
             String newAccessToken = _jwtUtils.generateJwtToken(userDetails);
 
-            // Extraer roles
             List<String> roles = userDetails.getAuthorities()
                     .stream()
                     .map(a -> a.getAuthority())
                     .toList();
 
-            Logger.success(getClass(), "Access token refreshed successfully for user ID: "
+            Logger.success(getClass(), "Access token refreshed successfully for account ID: "
                     + account.getIdAccount());
 
-            // Retornar solo el nuevo access token (el refresh token sigue siendo válido)
-            return new JwtResponseDTO(newAccessToken, userDetails.getId(), roles);
+            return new JwtResponseDTO(newAccessToken, account.getIdAccount(), roles);
 
         } catch (TokenRefreshException e) {
             Logger.error(getClass(), "Token refresh failed: " + e.getMessage());

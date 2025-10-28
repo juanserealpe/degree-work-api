@@ -49,10 +49,13 @@ public class DegreeWork {
 
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private DegreeWorkStatus status;
 
     // Constructors
-    public DegreeWork() {}
+    public DegreeWork() {
+        this.status = DegreeWorkStatus.IN_PROGRESS;
+    }
     public DegreeWork(Modality modality, String tittle, User coordinator, User director) {
         this.modality = modality;
         this.tittle = tittle;

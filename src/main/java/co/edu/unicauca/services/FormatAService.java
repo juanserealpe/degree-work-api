@@ -33,8 +33,8 @@ public class FormatAService implements IProcessService {
                         "DegreeWork not found with id: " + dto.getIdDegreeWork()
                 ));
 
-        _validator.validateRequest(dto);
-        _validator.validateWithDegreeWork(dto, degreeWork);
+        //_validator.validateRequest(dto);
+        //_validator.validateWithDegreeWork(dto, degreeWork);
 
         FormatA formatA = new FormatA(degreeWork);
         formatA.setUrl(dto.getUrl());

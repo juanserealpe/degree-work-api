@@ -1,6 +1,6 @@
 package co.edu.unicauca.enums;
 
-public enum ProcessStatus {
+public enum ProcessState {
     CREATED,      // Estado inicial - documento subido
     SUBMITTED,    // Enviado para evaluación
     REJECTED,     // Rechazado con observaciones (puede reintentar)

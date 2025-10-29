@@ -1,12 +1,11 @@
 package co.edu.unicauca.services;
 
+import co.edu.unicauca.dtos.AssignJuryRequestDTO;
 import co.edu.unicauca.dtos.ProcessRequestDTO;
 import co.edu.unicauca.entities.DegreeWork;
 import co.edu.unicauca.entities.Draft;
 import co.edu.unicauca.entities.FormatA;
 import co.edu.unicauca.entities.Process;
-import co.edu.unicauca.enums.ProcessStatus;
-import co.edu.unicauca.enums.ProcessType;
 import co.edu.unicauca.exceptions.DegreeWorkException;
 import co.edu.unicauca.exceptions.ProcessException;
 import co.edu.unicauca.interfaces.IProcessService;
@@ -17,7 +16,6 @@ import co.edu.unicauca.utilities.Logger;
 import co.edu.unicauca.validators.FormatAValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 
 @Service
@@ -39,13 +37,12 @@ public class FormatAService implements IProcessService {
                         "DegreeWork not found with id: " + dto.getIdDegreeWork()
                 ));
 
-        //_validator.validateRequest(dto);
-        //_validator.validateWithDegreeWork(dto, degreeWork);
+        _validator.validateRequest(dto);
+        _validator.validateWithDegreeWork(dto, degreeWork);
 
         FormatA formatA = new FormatA(degreeWork);
         formatA.setUrl(dto.getUrl());
-        formatA.setProcessStatus(ProcessStatus.SUBMITTED);
-        formatA.setProcess(ProcessType.FORMAT_A);
+        formatA.submit();
 
         Logger.success(getClass(), "Format A created successfully with ID: " + formatA.getId());
         return _formatARepository.save(formatA);
@@ -74,7 +71,6 @@ public class FormatAService implements IProcessService {
                 ));
 
         formatA.reject(observation);
-
         return _formatARepository.save(formatA);
     }
 
@@ -91,7 +87,7 @@ public class FormatAService implements IProcessService {
     }
 
     @Override
-    public Draft assignJuryToDraft(Long draftId) {
+    public Draft assignJuryToDraft(AssignJuryRequestDTO request) {
         throw new ProcessException("you cannot assign jury to format A");
     }
 }

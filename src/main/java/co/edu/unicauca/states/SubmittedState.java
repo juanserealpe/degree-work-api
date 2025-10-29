@@ -2,26 +2,26 @@ package co.edu.unicauca.states;
 
 import co.edu.unicauca.entities.FormatA;
 import co.edu.unicauca.entities.Process;
-import co.edu.unicauca.enums.ProcessStatus;
-import co.edu.unicauca.exceptions.StatusProcessException;
+import co.edu.unicauca.enums.ProcessState;
+import co.edu.unicauca.exceptions.StateProcessException;
 import co.edu.unicauca.interfaces.IProcessState;
 
 public class SubmittedState implements IProcessState {
 
     @Override
     public void submit(Process process) {
-        throw new StatusProcessException("Process is already submitted and pending review.");
+        throw new StateProcessException("Process is already submitted and pending review.");
     }
 
     @Override
     public void approve(Process process) {
-        process.setProcessStatus(ProcessStatus.APPROVED);
+        process.setProcessState(ProcessState.APPROVED);
     }
 
     @Override
     public void reject(Process process, String observation) {
         if (observation == null || observation.isBlank()) {
-            throw new StatusProcessException("Rejection requires an observation.");
+            throw new StateProcessException("Rejection requires an observation.");
         }
 
         process.addObservation(observation);
@@ -31,26 +31,32 @@ public class SubmittedState implements IProcessState {
             formatA.setFailedAttempts(attempts);
 
             if (attempts >= 3) {
-                process.setProcessStatus(ProcessStatus.FAILED);
+                process.setProcessState(ProcessState.FAILED);
                 return;
             }
         }
 
-        process.setProcessStatus(ProcessStatus.REJECTED);
+        process.setProcessState(ProcessState.REJECTED);
     }
 
     @Override
     public void resubmit(Process process, String newUrl) {
-        throw new StatusProcessException("Cannot resubmit while under review. Wait for approval or rejection.");
+
+        if(process instanceof FormatA formatA){
+            if(formatA.getFailedAttempts() == 0)
+                throw new StateProcessException("the format_a should have at least 1 failed attempt.");
+        }
+
+        throw new StateProcessException("Cannot resubmit while under review. Wait for approval or rejection.");
     }
 
     @Override
     public void assignJury(Process process) {
-        throw new StatusProcessException("Cannot assign jury until the draft is approved.");
+        throw new StateProcessException("Cannot assign jury until the draft is approved.");
     }
 
     @Override
-    public ProcessStatus getStatus() {
-        return ProcessStatus.SUBMITTED;
+    public ProcessState getStatus() {
+        return ProcessState.SUBMITTED;
     }
 }

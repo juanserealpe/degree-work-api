@@ -1,6 +1,6 @@
 package co.edu.unicauca.entities;
 
-import co.edu.unicauca.enums.ProcessStatus;
+import co.edu.unicauca.enums.ProcessState;
 import co.edu.unicauca.enums.ProcessType;
 import co.edu.unicauca.interfaces.IProcessState;
 import co.edu.unicauca.fabrics.ProcessStateFactory;
@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "processes")
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "process_type")
+@DiscriminatorColumn(name = "process_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Process {
     @Id
     @Column(name = "id_process")
@@ -24,18 +24,14 @@ public abstract class Process {
     @Column(name = "created_at")
     private LocalDateTime date = LocalDateTime.now();
 
-    @Column(name = "type_process")
-    @Enumerated(EnumType.STRING)
-    private ProcessType process;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_degree_work")
     @JsonBackReference
     private DegreeWork degreeWork;
 
-    @Column(name = "status")
+    @Column(name = "state")
     @Enumerated(EnumType.STRING)
-    private ProcessStatus processStatus;
+    private ProcessState processState;
 
     @Column(name = "url")
     private String url;
@@ -49,9 +45,10 @@ public abstract class Process {
     @Transient
     private IProcessState currentState;
 
-    // Constructores
+    // Constructors
+
     public Process() {
-        this.processStatus = ProcessStatus.CREATED;
+        this.processState = ProcessState.CREATED;
     }
 
     public Process(DegreeWork degreeWork) {
@@ -59,15 +56,17 @@ public abstract class Process {
         this.degreeWork = degreeWork;
     }
 
-    // Getter del estado actual (lazy loading)
+    // Getter current state
+
     public IProcessState getCurrentState() {
         if (currentState == null) {
-            currentState = ProcessStateFactory.fromStatus(processStatus);
+            currentState = ProcessStateFactory.fromStatus(processState);
         }
         return currentState;
     }
 
-    // Métodos delegados al patrón State
+    // State pattern methods
+
     public void submit() {
         getCurrentState().submit(this);
         refreshState();
@@ -93,27 +92,26 @@ public abstract class Process {
         refreshState();
     }
 
-    // Refrescar el estado después de una transición
+    // Refresh the state after a transition
+
     private void refreshState() {
-        this.currentState = ProcessStateFactory.fromStatus(this.processStatus);
+        this.currentState = ProcessStateFactory.fromStatus(this.processState);
     }
 
     // Getters & Setters
+
     public Long getId() { return id; }
 
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
 
-    public ProcessType getProcess() { return process; }
-    public void setProcess(ProcessType process) { this.process = process; }
-
     public DegreeWork getDegreeWork() { return degreeWork; }
     public void setDegreeWork(DegreeWork degreeWork) { this.degreeWork = degreeWork; }
 
-    public ProcessStatus getProcessStatus() { return processStatus; }
-    public void setProcessStatus(ProcessStatus processStatus) {
-        this.processStatus = processStatus;
-        this.currentState = null; // Forzar recarga del estado
+    public ProcessState getProcessState() { return processState; }
+    public void setProcessState(ProcessState processState) {
+        this.processState = processState;
+        this.currentState = null;
     }
 
     public String getUrl() { return url; }
@@ -123,6 +121,7 @@ public abstract class Process {
     public void setObservations(List<String> observations) { this.observations = observations; }
 
     // Helper
+
     public void addObservation(String observation) {
         this.observations.add(observation);
     }

@@ -7,18 +7,32 @@ import java.time.LocalDateTime;
 @Table(name = "draft")
 @DiscriminatorValue("DRAFT")
 public class Draft extends Process {
+
     @Column(name = "deadline")
     private LocalDateTime deadline;
 
-    //Constructor
+    //Constructors
+
+    public Draft() {
+        super();
+    }
 
     public Draft(DegreeWork degreeWork, LocalDateTime deadline) {
         super(degreeWork);
         this.deadline = deadline;
     }
 
-    //Getters & setters
+    public Draft(DegreeWork degreeWork) {
+        super(degreeWork);
+    }
 
-    public LocalDateTime getDeadline() {return deadline;}
-    public void setDeadline(LocalDateTime deadline) {this.deadline = deadline;}
+    // Getters & setters
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDateTime deadline) {
+        this.deadline = deadline;
+    }
 }

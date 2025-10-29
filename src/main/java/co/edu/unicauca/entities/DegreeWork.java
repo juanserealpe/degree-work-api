@@ -2,7 +2,7 @@ package co.edu.unicauca.entities;
 
 import co.edu.unicauca.enums.DegreeWorkStatus;
 import co.edu.unicauca.enums.Modality;
-import co.edu.unicauca.enums.ProcessStatus;
+import co.edu.unicauca.enums.ProcessState;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -104,16 +104,5 @@ public class DegreeWork {
     public void removeStudent(User student) {
         students.remove(student);
         student.getEnrolledWorks().remove(this);
-    }
-
-    public void addProcess(Process process){
-        if(processes.isEmpty()){
-            processes.add(process);
-        }else{
-            Process a = processes.get(processes.size()-1);
-            if(a.getProcess().equals(ProcessStatus.APPROVED)){
-                processes.add(process);
-            }
-        }
     }
 }

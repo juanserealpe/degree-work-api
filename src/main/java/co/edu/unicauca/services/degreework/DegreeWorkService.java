@@ -1,4 +1,4 @@
-package co.edu.unicauca.services;
+package co.edu.unicauca.services.degreework;
 
 import co.edu.unicauca.exceptions.DegreeWorkException;
 import co.edu.unicauca.repositories.UserRepository;

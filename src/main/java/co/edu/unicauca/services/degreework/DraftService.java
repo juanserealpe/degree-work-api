@@ -1,11 +1,10 @@
-package co.edu.unicauca.services;
+package co.edu.unicauca.services.degreework;
 
 import co.edu.unicauca.dtos.AssignJuryRequestDTO;
 import co.edu.unicauca.dtos.ProcessRequestDTO;
 import co.edu.unicauca.entities.DegreeWork;
 import co.edu.unicauca.entities.Draft;
 import co.edu.unicauca.entities.Process;
-import co.edu.unicauca.entities.User;
 import co.edu.unicauca.exceptions.DegreeWorkException;
 import co.edu.unicauca.exceptions.ProcessException;
 import co.edu.unicauca.interfaces.IProcessService;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class DraftService implements IProcessService {

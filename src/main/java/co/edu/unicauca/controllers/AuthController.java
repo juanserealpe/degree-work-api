@@ -2,13 +2,12 @@ package co.edu.unicauca.controllers;
 
 import co.edu.unicauca.dtos.JwtResponseDTO;
 import co.edu.unicauca.dtos.LoginRequestDTO;
-import co.edu.unicauca.entities.Admin;
-import co.edu.unicauca.entities.User;
-import co.edu.unicauca.enums.Role;
+import co.edu.unicauca.dtos.userDTOs.UserCreateDTO;
+import co.edu.unicauca.dtos.userDTOs.UserResponseDTO;
 import co.edu.unicauca.exceptions.TokenRefreshException;
 import co.edu.unicauca.services.AdminService;
-import co.edu.unicauca.services.AuthService;
-import co.edu.unicauca.services.UserService;
+import co.edu.unicauca.services.auth.AuthService;
+import co.edu.unicauca.services.auth.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,52 +94,9 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register-student")
-    public ResponseEntity<User> registerStudent(@RequestBody User user) {
-        User saved = _userService.userRegister(user, Role.STUDENT);
+    @PostMapping("/register")
+    public ResponseEntity<UserResponseDTO> registerStudent(@RequestBody UserCreateDTO user) {
+        UserResponseDTO saved = _userService.userRegister(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
-
-
-    @PostMapping("/register-coordinator")
-    //@PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> registerCoordinator(@RequestBody User user) {
-        try {
-            User saved = _userService.userRegister(user, Role.COORDINATOR);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while registering the coordinator");
-        }
-    }
-
-    @PostMapping("/register-director")
-    //@PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> registerDirector(@RequestBody User user) {
-        try {
-            User saved = _userService.userRegister(user, Role.DIRECTOR);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while registering the director");
-        }
-    }
-
-    @PostMapping("/register-admin")
-    //@PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> registerAdmin(@RequestBody Admin user) {
-        try {
-            Admin saved = _adminService.adminRegister(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while registering the director");
-        }
     }
 }

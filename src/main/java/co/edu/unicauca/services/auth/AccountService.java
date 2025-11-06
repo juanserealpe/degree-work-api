@@ -1,6 +1,8 @@
-package co.edu.unicauca.services;
+package co.edu.unicauca.services.auth;
 
 import co.edu.unicauca.entities.Account;
+import co.edu.unicauca.enums.exceptions.UserErrorCode;
+import co.edu.unicauca.exceptions.UserException;
 import co.edu.unicauca.repositories.AccountRepository;
 import co.edu.unicauca.utilities.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ public class AccountService {
     public void validateEmailNotExists(String email) {
         if (emailExists(email)) {
             Logger.warn(getClass(), "Email already in use: " + email);
-            throw new IllegalArgumentException("Email already in use");
+            throw new UserException(UserErrorCode.DUPLICATE_EMAIL, "Email already in use");
         }
     }
 

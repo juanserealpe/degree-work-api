@@ -2,8 +2,8 @@ package co.edu.unicauca.controllers;
 
 import co.edu.unicauca.dtos.AssignJuryRequestDTO;
 import co.edu.unicauca.dtos.RejectFormatARequestDTO;
-import co.edu.unicauca.services.DraftService;
-import co.edu.unicauca.services.FormatAService;
+import co.edu.unicauca.services.degreework.DraftService;
+import co.edu.unicauca.services.degreework.FormatAService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

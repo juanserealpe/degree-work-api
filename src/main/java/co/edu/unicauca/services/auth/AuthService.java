@@ -1,4 +1,4 @@
-package co.edu.unicauca.services;
+package co.edu.unicauca.services.auth;
 
 import co.edu.unicauca.authentication.AccountDetails;
 import co.edu.unicauca.dtos.JwtResponseDTO;

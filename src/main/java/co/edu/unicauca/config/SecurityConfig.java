@@ -1,6 +1,6 @@
 package co.edu.unicauca.config;
 
-import co.edu.unicauca.services.AccountDetailsService;
+import co.edu.unicauca.services.auth.AccountDetailsService;
 import co.edu.unicauca.utilities.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

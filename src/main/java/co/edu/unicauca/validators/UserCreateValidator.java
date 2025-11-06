@@ -76,11 +76,9 @@ public class UserCreateValidator {
 
             Logger.info(getClass(), "User request validation completed successfully.");
         } catch (UserException ex) {
-            // log validation-specific exceptions
             Logger.warn(getClass(), "Validation failed: " + ex.getMessage());
-            throw ex; // Rethrow to be handled by GlobalExceptionHandler
+            throw ex;
         } catch (Exception ex) {
-            // log unexpected errors
             Logger.error(getClass(), "Unexpected error during validation: " + ex.getMessage());
             throw new UserException(UserErrorCode.INVALID_NAMES, "Unexpected validation error");
         }

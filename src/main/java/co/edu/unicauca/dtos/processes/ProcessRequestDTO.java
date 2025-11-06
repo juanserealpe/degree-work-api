@@ -1,4 +1,4 @@
-package co.edu.unicauca.dtos;
+package co.edu.unicauca.dtos.processes;
 
 import co.edu.unicauca.enums.ProcessType;
 

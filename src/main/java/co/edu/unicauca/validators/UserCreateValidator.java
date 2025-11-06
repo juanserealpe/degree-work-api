@@ -1,6 +1,6 @@
 package co.edu.unicauca.validators;
 
-import co.edu.unicauca.dtos.userDTOs.UserCreateDTO;
+import co.edu.unicauca.dtos.user.UserCreateDTO;
 import co.edu.unicauca.enums.exceptions.UserErrorCode;
 import co.edu.unicauca.exceptions.UserException;
 import co.edu.unicauca.utilities.Logger;

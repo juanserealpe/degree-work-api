@@ -1,17 +1,14 @@
 package co.edu.unicauca.validators;
 
-import co.edu.unicauca.dtos.DegreeWorkRequestDTO;
+import co.edu.unicauca.dtos.degreework.DegreeWorkRequestDTO;
 import co.edu.unicauca.entities.User;
 import co.edu.unicauca.enums.Role;
 import co.edu.unicauca.exceptions.DegreeWorkException;
 import co.edu.unicauca.exceptions.RoleException;
-import co.edu.unicauca.exceptions.UserException;
-import co.edu.unicauca.repositories.UserRepository;
 import co.edu.unicauca.utilities.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class DegreeWorkValidator {

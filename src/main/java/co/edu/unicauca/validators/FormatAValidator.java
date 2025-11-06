@@ -1,13 +1,10 @@
 package co.edu.unicauca.validators;
 
-import co.edu.unicauca.dtos.ProcessRequestDTO;
+import co.edu.unicauca.dtos.processes.ProcessRequestDTO;
 import co.edu.unicauca.entities.DegreeWork;
 import co.edu.unicauca.entities.FormatA;
 import co.edu.unicauca.enums.DegreeWorkStatus;
-import co.edu.unicauca.enums.ProcessState;
-import co.edu.unicauca.enums.ProcessType;
 import co.edu.unicauca.exceptions.DegreeWorkException;
-import co.edu.unicauca.exceptions.ProcessException;
 import co.edu.unicauca.utilities.Logger;
 import org.springframework.stereotype.Component;
 

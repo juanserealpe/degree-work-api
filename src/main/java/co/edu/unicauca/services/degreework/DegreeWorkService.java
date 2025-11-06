@@ -3,7 +3,7 @@ package co.edu.unicauca.services.degreework;
 import co.edu.unicauca.exceptions.DegreeWorkException;
 import co.edu.unicauca.repositories.UserRepository;
 import co.edu.unicauca.validators.DegreeWorkValidator;
-import co.edu.unicauca.dtos.DegreeWorkRequestDTO;
+import co.edu.unicauca.dtos.degreework.DegreeWorkRequestDTO;
 import co.edu.unicauca.entities.DegreeWork;
 import co.edu.unicauca.entities.User;
 import co.edu.unicauca.repositories.DegreeWorkRepository;

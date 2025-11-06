@@ -1,9 +1,9 @@
 package co.edu.unicauca.controllers;
 
-import co.edu.unicauca.dtos.JwtResponseDTO;
-import co.edu.unicauca.dtos.LoginRequestDTO;
-import co.edu.unicauca.dtos.userDTOs.UserCreateDTO;
-import co.edu.unicauca.dtos.userDTOs.UserResponseDTO;
+import co.edu.unicauca.dtos.login.LoginResponseDTO;
+import co.edu.unicauca.dtos.login.LoginRequestDTO;
+import co.edu.unicauca.dtos.user.UserCreateDTO;
+import co.edu.unicauca.dtos.user.UserResponseDTO;
 import co.edu.unicauca.exceptions.TokenRefreshException;
 import co.edu.unicauca.services.AdminService;
 import co.edu.unicauca.services.auth.AuthService;
@@ -31,22 +31,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
-        try {
-            JwtResponseDTO response = _authService.authenticateUser(loginRequest);
-            return ResponseEntity.ok(response);
-
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid email or password");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred during authentication");
-        }
+        LoginResponseDTO response = _authService.authenticateUser(loginRequest);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody JwtResponseDTO request) {
+    /*@PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody LoginResponseDTO request) {
         try {
             String refreshToken = request.getRefreshToken();
 
@@ -54,7 +44,7 @@ public class AuthController {
                 return ResponseEntity.badRequest().body("Refresh token is required");
             }
 
-            JwtResponseDTO response = _authService.refreshAccessToken(refreshToken);
+            LoginResponseDTO response = _authService.refreshAccessToken(refreshToken);
             return ResponseEntity.ok(response);
 
         } catch (TokenRefreshException e) {
@@ -68,7 +58,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody JwtResponseDTO request) {
+    public ResponseEntity<?> logout(@RequestBody LoginResponseDTO request) {
         try {
             String refreshToken = request.getRefreshToken();
             _authService.logout(refreshToken);
@@ -79,6 +69,8 @@ public class AuthController {
                     .body("An error occurred during logout");
         }
     }
+
+     */
 
     @PostMapping("/logout-all")
     //@PreAuthorize("isAuthenticated()")

@@ -1,7 +1,7 @@
 package co.edu.unicauca.interfaces;
 
 import co.edu.unicauca.dtos.AssignJuryRequestDTO;
-import co.edu.unicauca.dtos.ProcessRequestDTO;
+import co.edu.unicauca.dtos.processes.ProcessRequestDTO;
 import co.edu.unicauca.entities.Draft;
 import co.edu.unicauca.entities.Process;
 import org.springframework.transaction.annotation.Transactional;

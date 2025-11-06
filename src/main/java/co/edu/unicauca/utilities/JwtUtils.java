@@ -17,15 +17,15 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(AccountDetails accountDetails) {
-        // Convertir roles a lista de strings
+
         List<String> roles = accountDetails.getAuthorities()
                 .stream()
                 .map(authority -> authority.getAuthority())
                 .toList();
 
         return Jwts.builder()
-                .claim("idAccount", accountDetails.getId()) // idAccount como claim
-                .claim("roles", roles) // roles como lista de strings
+                .claim("idAccount", accountDetails.getId())
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256)

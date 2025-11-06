@@ -1,7 +1,7 @@
 package co.edu.unicauca.services.auth;
 
-import co.edu.unicauca.dtos.userDTOs.UserCreateDTO;
-import co.edu.unicauca.dtos.userDTOs.UserResponseDTO;
+import co.edu.unicauca.dtos.user.UserCreateDTO;
+import co.edu.unicauca.dtos.user.UserResponseDTO;
 import co.edu.unicauca.entities.Account;
 import co.edu.unicauca.entities.User;
 import co.edu.unicauca.repositories.UserRepository;

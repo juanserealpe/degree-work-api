@@ -1,6 +1,6 @@
 package co.edu.unicauca.controllers;
 
-import co.edu.unicauca.dtos.ProcessRequestDTO;
+import co.edu.unicauca.dtos.processes.ProcessRequestDTO;
 import co.edu.unicauca.dtos.RejectFormatARequestDTO;
 import co.edu.unicauca.services.degreework.DraftService;
 import co.edu.unicauca.services.degreework.FormatAService;

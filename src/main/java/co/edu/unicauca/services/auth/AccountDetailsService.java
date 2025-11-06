@@ -2,6 +2,8 @@ package co.edu.unicauca.services.auth;
 
 import co.edu.unicauca.authentication.AccountDetails;
 import co.edu.unicauca.entities.Account;
+import co.edu.unicauca.enums.exceptions.UserErrorCode;
+import co.edu.unicauca.exceptions.UserException;
 import co.edu.unicauca.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +25,7 @@ public class AccountDetailsService implements UserDetailsService {
         Account account = _accountRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     Logger.error(getClass(), "User not found with email: " + email);
-                    return new UsernameNotFoundException("User not found with email: " + email);
+                    return new UserException(UserErrorCode.INVALID_CREDENTIALS, "Invalid email or password");
                 });
 
         Logger.success(getClass(), "User details loaded successfully for email: " + email);

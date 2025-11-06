@@ -1,6 +1,6 @@
 package co.edu.unicauca.controllers;
 
-import co.edu.unicauca.dtos.DegreeWorkRequestDTO;
+import co.edu.unicauca.dtos.degreework.DegreeWorkRequestDTO;
 import co.edu.unicauca.entities.DegreeWork;
 import co.edu.unicauca.services.degreework.DegreeWorkService;
 import org.springframework.beans.factory.annotation.Autowired;

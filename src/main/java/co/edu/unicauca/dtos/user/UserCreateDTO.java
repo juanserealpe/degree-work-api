@@ -1,4 +1,4 @@
-package co.edu.unicauca.dtos.userDTOs;
+package co.edu.unicauca.dtos.user;
 
 import co.edu.unicauca.enums.Role;
 import lombok.Data;

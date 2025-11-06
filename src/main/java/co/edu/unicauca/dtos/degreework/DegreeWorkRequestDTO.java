@@ -1,4 +1,4 @@
-package co.edu.unicauca.dtos;
+package co.edu.unicauca.dtos.degreework;
 
 import co.edu.unicauca.enums.Modality;
 import java.util.List;

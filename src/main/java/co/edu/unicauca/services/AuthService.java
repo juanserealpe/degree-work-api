@@ -36,13 +36,13 @@ public class AuthService {
 
     @Transactional
     public JwtResponseDTO authenticateUser(LoginRequestDTO loginRequest) {
-        Logger.info(getClass(), "Attempting login for email: " + loginRequest.getEmail());
+        Logger.info(getClass(), "Attempting login for email: " + loginRequest.email());
 
         try {
             Authentication auth = _authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
+                            loginRequest.email(),
+                            loginRequest.password()
                     )
             );
 

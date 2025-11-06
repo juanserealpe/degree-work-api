@@ -2,7 +2,9 @@ package co.edu.unicauca.services;
 
 import co.edu.unicauca.entities.Account;
 import co.edu.unicauca.entities.User;
+import co.edu.unicauca.enums.exceptions.UserErrorCode;
 import co.edu.unicauca.enums.Role;
+import co.edu.unicauca.exceptions.UserException;
 import co.edu.unicauca.repositories.UserRepository;
 import co.edu.unicauca.utilities.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class UserService {
 
     @Transactional
     public User userRegister(User prmUser, Role... roles){
+        if(prmUser != null){
+            throw new UserException(UserErrorCode.USER_NOT_FOUND, "User not found");
+        }
         Logger.info(getClass(), "Attempting to register new user:" +  prmUser.getAccount().getEmail());
 
         _accountService.validateEmailNotExists(prmUser.getAccount().getEmail());

@@ -12,7 +12,6 @@ import co.edu.unicauca.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -97,17 +96,11 @@ public class AuthController {
     }
 
     @PostMapping("/register-student")
-    public ResponseEntity<?> registerStudent(@RequestBody User user) {
-        try {
-            User saved = _userService.userRegister(user, Role.STUDENT);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while registering the student");
-        }
+    public ResponseEntity<User> registerStudent(@RequestBody User user) {
+        User saved = _userService.userRegister(user, Role.STUDENT);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
 
     @PostMapping("/register-coordinator")
     //@PreAuthorize("hasRole('ADMIN')")

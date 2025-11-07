@@ -2,6 +2,7 @@ package co.edu.unicauca.controllers;
 
 import co.edu.unicauca.dtos.login.LoginResponseDTO;
 import co.edu.unicauca.dtos.login.LoginRequestDTO;
+import co.edu.unicauca.dtos.login.RefreshRequestDTO;
 import co.edu.unicauca.dtos.user.UserCreateDTO;
 import co.edu.unicauca.dtos.user.UserResponseDTO;
 import co.edu.unicauca.exceptions.TokenRefreshException;
@@ -23,9 +24,6 @@ public class AuthController {
     private AuthService _authService;
 
     @Autowired
-    private AdminService _adminService;
-
-    @Autowired
     private UserService _userService;
 
 
@@ -35,30 +33,14 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    /*@PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody LoginResponseDTO request) {
-        try {
-            String refreshToken = request.getRefreshToken();
-
-            if (refreshToken == null || refreshToken.isEmpty()) {
-                return ResponseEntity.badRequest().body("Refresh token is required");
-            }
-
-            LoginResponseDTO response = _authService.refreshAccessToken(refreshToken);
-            return ResponseEntity.ok(response);
-
-        } catch (TokenRefreshException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(e.getMessage());
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while refreshing token");
-        }
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshRequestDTO request) {
+        LoginResponseDTO response = _authService.refreshAccessToken(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody LoginResponseDTO request) {
+    public ResponseEntity<?> logout(@RequestBody RefreshRequestDTO request) {
         try {
             String refreshToken = request.getRefreshToken();
             _authService.logout(refreshToken);
@@ -69,8 +51,6 @@ public class AuthController {
                     .body("An error occurred during logout");
         }
     }
-
-     */
 
     @PostMapping("/logout-all")
     //@PreAuthorize("isAuthenticated()")

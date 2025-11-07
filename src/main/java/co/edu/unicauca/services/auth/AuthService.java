@@ -1,10 +1,7 @@
 package co.edu.unicauca.services.auth;
 
 import co.edu.unicauca.authentication.AccountDetails;
-import co.edu.unicauca.dtos.login.AuthDTO;
-import co.edu.unicauca.dtos.login.LoginResponseDTO;
-import co.edu.unicauca.dtos.login.LoginRequestDTO;
-import co.edu.unicauca.dtos.login.UserDTO;
+import co.edu.unicauca.dtos.login.*;
 import co.edu.unicauca.entities.Account;
 import co.edu.unicauca.entities.RefreshToken;
 import co.edu.unicauca.enums.exceptions.UserErrorCode;
@@ -58,20 +55,20 @@ public class AuthService {
 
         AccountDetails userDetails = (AccountDetails) auth.getPrincipal();
 
-        // Generate JWT access token
+        // generate JWT access token
         String accessToken = _jwtUtils.generateJwtToken(userDetails);
 
-        // Find the account entity
+        // find the account entity
         Account account = _accountRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UserException(
                         UserErrorCode.INVALID_CREDENTIALS,
                         "Invalid email or password"
                 ));
 
-        // Create refresh token
+        // create refresh token
         RefreshToken refreshToken = _refreshTokenService.createRefreshToken(account);
 
-        // Get roles
+        // get roles
         List<String> roles = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -96,11 +93,11 @@ public class AuthService {
 
 
     @Transactional
-    public LoginResponseDTO refreshAccessToken(String requestRefreshToken) {
+    public LoginResponseDTO refreshAccessToken(RefreshRequestDTO request) {
         Logger.info(getClass(), "Attempting to refresh access token");
 
         try {
-            RefreshToken refreshToken = _refreshTokenService.findByToken(requestRefreshToken);
+            RefreshToken refreshToken = _refreshTokenService.findByToken(request.getRefreshToken());
             _refreshTokenService.verifyExpiration(refreshToken);
             Account account = refreshToken.getAccount();
             AccountDetails userDetails = new AccountDetails(account);
@@ -149,7 +146,7 @@ public class AuthService {
         Logger.info(getClass(), "Logging out all devices for account ID: " + accountId);
 
         Account account = _accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,"Id not found"));
 
         _refreshTokenService.revokeTokensByAccount(account);
         Logger.success(getClass(), "All devices logged out for account ID: " + accountId);

@@ -36,9 +36,10 @@ public class AuthService {
     @Autowired
     private AccountRepository _accountRepository;
 
+    // user authentication + token creation
     @Transactional
     public LoginResponseDTO authenticateUser(LoginRequestDTO loginRequest) {
-        Logger.info(getClass(), "Attempting login for email: " + loginRequest.email());
+        Logger.info(getClass(), "attempting login for email: " + loginRequest.email());
 
         Authentication auth;
         try {
@@ -49,56 +50,46 @@ public class AuthService {
                     )
             );
         } catch (BadCredentialsException e) {
-            Logger.warn(getClass(), "Invalid credentials for email: " + loginRequest.email());
-            throw new UserException(UserErrorCode.INVALID_CREDENTIALS, "Invalid email or password");
+            Logger.warn(getClass(), "invalid credentials for email: " + loginRequest.email());
+            throw new UserException(UserErrorCode.INVALID_CREDENTIALS, "invalid email or password");
         }
 
         AccountDetails userDetails = (AccountDetails) auth.getPrincipal();
 
-        // generate JWT access token
         String accessToken = _jwtUtils.generateJwtToken(userDetails);
 
-        // find the account entity
         Account account = _accountRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UserException(
                         UserErrorCode.INVALID_CREDENTIALS,
-                        "Invalid email or password"
+                        "invalid email or password"
                 ));
 
-        // create refresh token
+        // refresh token creation handled safely (throws TokenRefreshException if fails)
         RefreshToken refreshToken = _refreshTokenService.createRefreshToken(account);
 
-        // get roles
         List<String> roles = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        Logger.success(getClass(), "Login successful for account ID: " + userDetails.getId()
-                + " | Roles: " + roles);
+        Logger.success(getClass(), "login successful for account ID: " + userDetails.getId()
+                + " | roles: " + roles);
 
-        AuthDTO authDTO = new AuthDTO(
-                accessToken,
-                refreshToken.getToken(),
-                "Bearer"
+        return new LoginResponseDTO(
+                new AuthDTO(accessToken, refreshToken.getToken(), "Bearer"),
+                new UserDTO(userDetails.getUsername(), roles)
         );
-
-        UserDTO userDTO = new UserDTO(
-                userDetails.getUsername(), // or account.getEmail()
-                roles
-        );
-
-        return new LoginResponseDTO(authDTO, userDTO);
     }
 
-
+    // refresh access token using a valid refresh token
     @Transactional
     public LoginResponseDTO refreshAccessToken(RefreshRequestDTO request) {
-        Logger.info(getClass(), "Attempting to refresh access token");
+        Logger.info(getClass(), "attempting to refresh access token");
 
         try {
             RefreshToken refreshToken = _refreshTokenService.findByToken(request.getRefreshToken());
             _refreshTokenService.verifyExpiration(refreshToken);
+
             Account account = refreshToken.getAccount();
             AccountDetails userDetails = new AccountDetails(account);
             String newAccessToken = _jwtUtils.generateJwtToken(userDetails);
@@ -108,47 +99,38 @@ public class AuthService {
                     .map(GrantedAuthority::getAuthority)
                     .toList();
 
-            Logger.success(getClass(), "Access token refreshed successfully for account ID: "
+            Logger.success(getClass(), "access token refreshed successfully for account ID: "
                     + account.getIdAccount());
 
-            AuthDTO authDTO = new AuthDTO(
-                    newAccessToken,
-                    refreshToken.getToken(),
-                    "Bearer"
+            return new LoginResponseDTO(
+                    new AuthDTO(newAccessToken, refreshToken.getToken(), "Bearer"),
+                    new UserDTO(account.getEmail(), roles)
             );
-
-            UserDTO userDTO = new UserDTO(
-                    account.getEmail(),
-                    roles
-            );
-
-            return new LoginResponseDTO(authDTO, userDTO);
 
         } catch (TokenRefreshException e) {
-            Logger.error(getClass(), "Token refresh failed: " + e.getMessage());
+            // no need to rewrap; already carries enum info
+            Logger.error(getClass(), "token refresh failed: " + e.getErrorCode() + " - " + e.getMessage());
             throw e;
         }
     }
 
-
+    // revoke token for current session
     @Transactional
     public void logout(String refreshToken) {
-        Logger.info(getClass(), "Processing logout");
-
-        if (refreshToken != null && !refreshToken.isEmpty()) {
-            _refreshTokenService.revokeToken(refreshToken);
-            Logger.success(getClass(), "Logout successful - token revoked");
-        }
+        Logger.info(getClass(), "processing logout");
+        _refreshTokenService.revokeToken(refreshToken);
+        Logger.success(getClass(), "logout successful - token revoked");
     }
 
+    // revoke all tokens for the user
     @Transactional
     public void logoutAllDevices(Long accountId) {
-        Logger.info(getClass(), "Logging out all devices for account ID: " + accountId);
+        Logger.info(getClass(), "logging out all devices for account ID: " + accountId);
 
         Account account = _accountRepository.findById(accountId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,"Id not found"));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND, "id not found"));
 
         _refreshTokenService.revokeTokensByAccount(account);
-        Logger.success(getClass(), "All devices logged out for account ID: " + accountId);
+        Logger.success(getClass(), "all devices logged out for account ID: " + accountId);
     }
 }

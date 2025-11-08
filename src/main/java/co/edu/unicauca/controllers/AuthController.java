@@ -5,14 +5,11 @@ import co.edu.unicauca.dtos.login.LoginRequestDTO;
 import co.edu.unicauca.dtos.login.RefreshRequestDTO;
 import co.edu.unicauca.dtos.user.UserCreateDTO;
 import co.edu.unicauca.dtos.user.UserResponseDTO;
-import co.edu.unicauca.exceptions.TokenRefreshException;
-import co.edu.unicauca.services.AdminService;
 import co.edu.unicauca.services.auth.AuthService;
 import co.edu.unicauca.services.auth.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -41,15 +38,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshRequestDTO request) {
-        try {
-            String refreshToken = request.getRefreshToken();
-            _authService.logout(refreshToken);
-            return ResponseEntity.ok("Logged out successfully");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred during logout");
-        }
+        _authService.logout(request.getRefreshToken());
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     @PostMapping("/logout-all")
@@ -67,7 +57,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerStudent(@RequestBody UserCreateDTO user) {
+    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserCreateDTO user) {
         UserResponseDTO saved = _userService.userRegister(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }

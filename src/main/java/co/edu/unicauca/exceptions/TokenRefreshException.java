@@ -1,12 +1,22 @@
 package co.edu.unicauca.exceptions;
 
-public class TokenRefreshException extends RuntimeException {
+import co.edu.unicauca.enums.exceptions.RefreshTokenErrorCode;
 
-    public TokenRefreshException(String token, String message) {
-        super(String.format("Failed for [%s]: %s", token, message));
+public class TokenRefreshException extends RuntimeException {
+    private final String token;
+    private final RefreshTokenErrorCode errorCode;
+
+    public TokenRefreshException(String token, RefreshTokenErrorCode errorCode) {
+        super(errorCode.getDefaultMessage());
+        this.token = token;
+        this.errorCode = errorCode;
     }
 
-    public TokenRefreshException(String message) {
-        super(message);
+    public String getToken() {
+        return token;
+    }
+
+    public RefreshTokenErrorCode getErrorCode() {
+        return errorCode;
     }
 }

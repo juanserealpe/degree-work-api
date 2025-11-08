@@ -23,7 +23,10 @@ public enum RefreshTokenErrorCode {
     TOKEN_REVOCATION_FAILED("R-500", "Error revoking refresh token", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // error while deleting expired tokens
-    TOKEN_CLEANUP_FAILED("R-500", "Error cleaning up expired tokens", HttpStatus.INTERNAL_SERVER_ERROR);
+    TOKEN_CLEANUP_FAILED("R-500", "Error cleaning up expired tokens", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // database-related error while handling refresh tokens
+    DATABASE_ERROR("R-501", "Database error while handling refresh token", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;
     private final String defaultMessage;
